@@ -1,0 +1,5 @@
+baseURL = 'https://ttult.github.io/'
+languageCode = 'ja-jp'
+title = 'My Af Site'
+theme = 'papermod'
+enableRobotsTXT = true
