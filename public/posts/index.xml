@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on Ultimate ROOM</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on Ultimate ROOM</description>
+    <generator>Hugo -- 0.148.0</generator>
+    <language>ja</language>
+    <lastBuildDate>Wed, 13 Aug 2025 10:00:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>First Post</title>
+      <link>http://localhost:1313/posts/first-post/</link>
+      <pubDate>Wed, 13 Aug 2025 10:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/first-post/</guid>
+      <description>&lt;p&gt;test&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>サンプル記事1 - 最新CG集レビュー</title>
+      <link>http://localhost:1313/posts/sample1/</link>
+      <pubDate>Wed, 13 Aug 2025 10:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/sample1/</guid>
+      <description>&lt;p&gt;これはサンプル記事1の本文です。ここには作品の概要や感想などが入ります。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>サンプル記事2 - 新作RPGゲーム情報</title>
+      <link>http://localhost:1313/posts/sample2/</link>
+      <pubDate>Tue, 12 Aug 2025 14:30:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/sample2/</guid>
+      <description>&lt;p&gt;これはサンプル記事2の本文です。ゲームの特徴やストーリーの紹介を行います。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>サンプル記事3 - 人気ランキングまとめ</title>
+      <link>http://localhost:1313/posts/sample3/</link>
+      <pubDate>Mon, 11 Aug 2025 09:15:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/sample3/</guid>
+      <description>&lt;p&gt;これはサンプル記事3の本文です。人気作品のランキングをまとめたものです。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
