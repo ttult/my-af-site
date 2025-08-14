@@ -32,11 +32,18 @@ home = ["HTML", "JSON"]
 
   mainSections = ["posts"] # posts ディレクトリをメインに
 
+  defaultTheme = "dark" # "dark"または"light"に設定
+
+  # 記事一覧にサムネイルを表示
+  ShowPostThumb = true
+  ShowPostSummary = true
+
   [params.list]
     showDate = true
     showReadingTime = true
     showSummary = true
     showTags = true
+    showImage = true
 
 [markup.goldmark.renderer]
 unsafe = true
@@ -47,11 +54,20 @@ unsafe = true
 
 [menu]
   [[menu.main]]
+    identifier = "home"
+    name = "ホーム"
+    url = "/"
+    weight = 1
+  [[menu.main]]
+    identifier = "about"
+    name = "このサイトについて"
+    url = "/about/"
+    weight = 30
+  [[menu.main]]
     identifier = "categories"
     name = "Categories"
     url = "/categories/"
     weight = 10
-
   [[menu.main]]
     identifier = "tags"
     name = "Tags"
