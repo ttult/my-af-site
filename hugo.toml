@@ -15,8 +15,18 @@ home = ["HTML", "JSON"]
 
 [params]
   siteDescription = "R18系電子データの最新情報を自動収集・更新するポータルサイト。ジャンルやタグで探しやすく、作者情報や作品リンクもすぐ確認可能。海外展開も視野に。"
-  author = "Ultimate ROOM"
+  # author = "Ultimate ROOM"
   keywords = ["R18", "同人", "電子書籍", "CG集", "ゲーム", "最新情報"]
+
+  # 記事カード表示設定
+  ShowReadingTime = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowPostThumb = true
+  ShowPostSummary = false
+  ShowImage = true
+  ShowSummary = false
 
   # taxonomies系(タグなど)
   showToc = true
@@ -24,26 +34,16 @@ home = ["HTML", "JSON"]
   showTags = true
   showCategories = true
 
-  # 記事カード表示設定
-  ShowReadingTime = true
-  ShowPostNavLinks = true
-  ShowBreadCrumbs = true
-  ShowCodeCopyButtons = true
-
   mainSections = ["posts"] # posts ディレクトリをメインに
 
   defaultTheme = "dark" # "dark"または"light"に設定
 
-  # 記事一覧にサムネイルを表示
-  ShowPostThumb = true
-  ShowPostSummary = true
-
-  [params.list]
-    showDate = true
-    showReadingTime = true
-    showSummary = true
-    showTags = true
-    showImage = true
+  # [params.list]
+  #   showDate = true
+  #   showReadingTime = true
+  #   showSummary = true
+  #   showTags = true
+  #   showImage = true
 
 [markup.goldmark.renderer]
 unsafe = true

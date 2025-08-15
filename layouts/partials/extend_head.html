@@ -3,4 +3,16 @@
 {{- /* Can be overwritten by partial with the same name in the global layouts. */ -}}
 {{- $style := resources.Get "css/custom.css" | resources.Minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
+<script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleButton = document.getElementById('layout-toggle');
+        const postList = document.getElementById('post-list');
+
+        if (toggleButton && postList) { // 👈 要素が存在するか確認
+            toggleButton.addEventListener('click', () => {
+                postList.classList.toggle('grid-container');
+            });
+        }
+    });
+</script>
 {{- /* Head custom content area end */ -}}
