@@ -3,7 +3,7 @@ name: Deploy Hugo site to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # メインブランチにpushされたときに実行
 
 jobs:
   deploy:
@@ -18,7 +18,7 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
         with:
-          hugo-version: 'latest' # 最新のHugoバージョンを使用
+          hugo-version: 'latest'
 
       - name: Build Hugo site
         run: hugo --minify
