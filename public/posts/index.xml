@@ -2,39 +2,44 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Posts on Ultimate ROOM</title>
-    <link>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/</link>
+    <link>http://localhost:1313/my-af-site/posts/</link>
     <description>Recent content in Posts on Ultimate ROOM</description>
     <generator>Hugo -- 0.148.0</generator>
     <language>ja</language>
     <lastBuildDate>Wed, 13 Aug 2025 10:00:00 +0900</lastBuildDate>
-    <atom:link href="https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/my-af-site/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>First Post</title>
-      <link>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/first-post/</link>
+      <link>http://localhost:1313/my-af-site/posts/first-post/</link>
       <pubDate>Wed, 13 Aug 2025 10:00:00 +0900</pubDate>
-      <guid>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/first-post/</guid>
+      <guid>http://localhost:1313/my-af-site/posts/first-post/</guid>
       <description>&lt;p&gt;test&lt;/p&gt;</description>
     </item>
     <item>
-      <title>サンプル記事1 - 最新CG集レビュー</title>
-      <link>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/sample1/</link>
-      <pubDate>Wed, 13 Aug 2025 10:00:00 +0900</pubDate>
-      <guid>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/sample1/</guid>
-      <description>&lt;p&gt;これはサンプル記事1の本文です。ここには作品の概要や感想などが入ります。&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>サンプル記事2 - 新作RPGゲーム情報</title>
-      <link>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/sample2/</link>
+      <link>http://localhost:1313/my-af-site/posts/sample2/</link>
       <pubDate>Tue, 12 Aug 2025 14:30:00 +0900</pubDate>
-      <guid>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/sample2/</guid>
+      <guid>http://localhost:1313/my-af-site/posts/sample2/</guid>
       <description>&lt;p&gt;これはサンプル記事2の本文です。ゲームの特徴やストーリーの紹介を行います。&lt;/p&gt;</description>
     </item>
     <item>
       <title>サンプル記事3 - 人気ランキングまとめ</title>
-      <link>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/sample3/</link>
+      <link>http://localhost:1313/my-af-site/posts/sample3/</link>
       <pubDate>Mon, 11 Aug 2025 09:15:00 +0900</pubDate>
-      <guid>https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/posts/sample3/</guid>
+      <guid>http://localhost:1313/my-af-site/posts/sample3/</guid>
       <description>&lt;p&gt;これはサンプル記事3の本文です。人気作品のランキングをまとめたものです。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>性器マッチングアプリで出会った体の相性だけは最高の女 総集編 レビュー!</title>
+      <link>http://localhost:1313/my-af-site/posts/sample1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/my-af-site/posts/sample1/</guid>
+      <description>&lt;h2 id=&#34;作品概要と詳細内容&#34;&gt;作品概要と詳細内容&lt;/h2&gt;
+&lt;p&gt;『最高の体の相性の異性と出会おう！』
+『容姿に自信が無くても、お金や学歴が無くても
+出会える！ヤれる！』&lt;/p&gt;
+&lt;p&gt;体の相性がいい異性と出会うことに特化したマッチングアプリ、
+「性器マッチングアプリ」が一般化された時代。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

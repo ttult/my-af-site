@@ -1,3 +1,3 @@
 User-agent: *
 Disallow: /
-Sitemap: https://probable-computing-machine-jjw4q9vv57gjcj7gj-1313.app.github.dev:1313/sitemap.xml
+Sitemap: http://localhost:1313/my-af-site/sitemap.xml

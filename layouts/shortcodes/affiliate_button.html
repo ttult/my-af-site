@@ -1,0 +1,8 @@
+{{- $link := .Get "link" -}}
+{{- $text := .Get "text" | default "購入はこちら" -}}
+
+<div class="affiliate-button-container">
+    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="affiliate-button">
+        {{ $text }}
+    </a>
+</div>

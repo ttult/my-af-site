@@ -105,3 +105,22 @@ body.light, :root.light {
 .grid-container .post-entry .entry-content-wrapper {
     padding: 1rem;
 }
+
+/* アフィリエイトボタンのスタイル */
+.affiliate-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff4500;
+    color: white !important; /* テキストの視認性を確保 */
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    /* その他レイアウト調整 */
+    text-align: center;
+    margin: 10px 0;
+}
+
+.affiliate-button:hover {
+    background-color: #e03a00;
+}
