@@ -6,8 +6,36 @@
     <description>Recent content in Tags on Ultimate ROOM</description>
     <generator>Hugo -- 0.148.0</generator>
     <language>ja</language>
-    <lastBuildDate>Wed, 13 Aug 2025 10:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Wed, 01 Oct 2025 15:00:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/my-af-site/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>サークル名</title>
+      <link>http://localhost:1313/my-af-site/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</link>
+      <pubDate>Wed, 01 Oct 2025 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/my-af-site/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ジャンル1</title>
+      <link>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</link>
+      <pubDate>Wed, 01 Oct 2025 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ジャンル2</title>
+      <link>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</link>
+      <pubDate>Wed, 01 Oct 2025 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>検索キーワード</title>
+      <link>http://localhost:1313/my-af-site/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</link>
+      <pubDate>Wed, 01 Oct 2025 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/my-af-site/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Blog</title>
       <link>http://localhost:1313/my-af-site/tags/blog/</link>
@@ -55,34 +83,6 @@
       <link>http://localhost:1313/my-af-site/tags/%E5%A3%B2%E4%B8%8A/</link>
       <pubDate>Mon, 11 Aug 2025 09:15:00 +0900</pubDate>
       <guid>http://localhost:1313/my-af-site/tags/%E5%A3%B2%E4%B8%8A/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>サークル名</title>
-      <link>http://localhost:1313/my-af-site/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/my-af-site/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>ジャンル1</title>
-      <link>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>ジャンル2</title>
-      <link>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>検索キーワード</title>
-      <link>http://localhost:1313/my-af-site/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/my-af-site/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</guid>
       <description></description>
     </item>
   </channel>

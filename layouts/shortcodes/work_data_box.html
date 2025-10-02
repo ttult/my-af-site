@@ -1,0 +1,46 @@
+{{- $product_id := .Page.Params.product_id -}}
+{{- $author := .Page.Params.author -}}
+{{- $categories := .Page.Params.categories -}}
+
+<div class="work-data-box" style="
+    border: 1px solid #ff4500;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+    background-color: #333333; /* Dark modeに合わせて調整 */
+">
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="width: 30%; padding: 5px 0; font-weight: bold; border-bottom: 1px solid #444;">作者名 (サークル名)</td>
+            <td style="width: 70%; padding: 5px 10px; border-bottom: 1px solid #444;">
+                {{ with $author }}
+                    <a href="/author/{{ . | urlize }}/">{{ . }}</a>
+                {{ end }}
+            </td>
+        </tr>
+        {{ with $product_id }}
+        <tr>
+            <td style="width: 30%; padding: 5px 0; font-weight: bold; border-bottom: 1px solid #444;">作品ID (品番)</td>
+            <td style="width: 70%; padding: 5px 10px; border-bottom: 1px solid #444;">
+                {{ . }}
+            </td>
+        </tr>
+        {{ end }}
+        <tr>
+            <td style="width: 30%; padding: 5px 0; font-weight: bold;">カテゴリ/ジャンル</td>
+            <td style="width: 70%; padding: 5px 10px;">
+                {{ range $category := $categories }}
+                    <a href="/categories/{{ $category | urlize }}/" style="
+                        background-color: #ff4500;
+                        color: white;
+                        padding: 3px 8px;
+                        border-radius: 3px;
+                        margin-right: 5px;
+                        text-decoration: none;
+                        font-size: 0.9em;
+                    ">{{ $category }}</a>
+                {{ end }}
+            </td>
+        </tr>
+    </table>
+</div>

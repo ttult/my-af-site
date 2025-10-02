@@ -45,6 +45,11 @@ home = ["HTML", "JSON"]
   #   showTags = true
   #   showImage = true
 
+  [params.toc]
+    # enable = false # PaperModのデフォルト設定では「false」
+    # 目次をサイドパネルに表示するために「true」に変更
+    side = true 
+
 [markup.goldmark.renderer]
 unsafe = true
 

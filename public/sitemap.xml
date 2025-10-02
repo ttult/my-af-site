@@ -2,16 +2,40 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>http://localhost:1313/my-af-site/categories/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/posts/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/tags/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/my-af-site/</loc>
-    <lastmod>2025-08-15T07:59:25+00:00</lastmod>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/posts/sample1/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/my-af-site/categories/%E5%90%8C%E4%BA%BA/</loc>
+    <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/my-af-site/about/</loc>
     <lastmod>2025-08-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/my-af-site/tags/blog/</loc>
-    <lastmod>2025-08-13T10:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/categories/</loc>
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/my-af-site/posts/first-post/</loc>
@@ -21,12 +45,6 @@
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/my-af-site/tags/papermod/</loc>
-    <lastmod>2025-08-13T10:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/posts/</loc>
-    <lastmod>2025-08-13T10:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/</loc>
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/my-af-site/categories/tech/</loc>
@@ -55,17 +73,5 @@
   </url><url>
     <loc>http://localhost:1313/my-af-site/tags/%E5%A3%B2%E4%B8%8A/</loc>
     <lastmod>2025-08-11T09:15:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</loc>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</loc>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</loc>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</loc>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/posts/sample1/</loc>
-  </url><url>
-    <loc>http://localhost:1313/my-af-site/categories/%E5%90%8C%E4%BA%BA/</loc>
   </url>
 </urlset>

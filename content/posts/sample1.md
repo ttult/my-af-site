@@ -15,6 +15,9 @@ product_id: "RJ01315495" # 品番
 affiliate_link: "https://www.dlsite.com/work_id=RJ01315495" 
 ---
 
+<!-- ショートコード呼び出し -->
+{{< work_data_box >}}
+
 ## 作品概要と詳細内容
 『最高の体の相性の異性と出会おう！』
 『容姿に自信が無くても、お金や学歴が無くても
