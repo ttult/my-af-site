@@ -25,7 +25,7 @@ body.light, :root.light {
 .post-entry {
     display: flex;
     align-items: center; /* 垂直方向の中央揃え */
-    padding: 1rem;
+    padding: 4px;
     margin-bottom: 1rem;
     border-radius: 8px; /* 角を丸くする */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 影を追加 */
@@ -123,4 +123,9 @@ body.light, :root.light {
 
 .affiliate-button:hover {
     background-color: #e03a00;
+}
+
+.entry-header h2 {
+    font-size: 16px;
+    line-height: 1.3;
 }
