@@ -2,76 +2,79 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/my-af-site/categories/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/categories/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/posts/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/posts/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/%E3%82%B5%E3%83%BC%E3%82%AF%E3%83%AB%E5%90%8D/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB1/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/%E3%82%B8%E3%83%A3%E3%83%B3%E3%83%AB2/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/%E6%A4%9C%E7%B4%A2%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/posts/sample1/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/posts/sample1/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/categories/%E5%90%8C%E4%BA%BA/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/categories/%E5%90%8C%E4%BA%BA/</loc>
     <lastmod>2025-10-01T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/about/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/privacy/</loc>
+    <lastmod>2025-08-15T07:59:25+00:00</lastmod>
+  </url><url>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/about/</loc>
     <lastmod>2025-08-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/blog/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/blog/</loc>
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/posts/first-post/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/posts/first-post/</loc>
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/hugo/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/hugo/</loc>
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/papermod/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/papermod/</loc>
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/categories/tech/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/categories/tech/</loc>
     <lastmod>2025-08-13T10:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/rpg/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/rpg/</loc>
     <lastmod>2025-08-12T14:30:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/categories/%E3%82%B2%E3%83%BC%E3%83%A0/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/categories/%E3%82%B2%E3%83%BC%E3%83%A0/</loc>
     <lastmod>2025-08-12T14:30:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/posts/sample2/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/posts/sample2/</loc>
     <lastmod>2025-08-12T14:30:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E6%96%B0%E4%BD%9C/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/%E6%96%B0%E4%BD%9C/</loc>
     <lastmod>2025-08-12T14:30:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/posts/sample3/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/posts/sample3/</loc>
     <lastmod>2025-08-11T09:15:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/categories/%E3%81%BE%E3%81%A8%E3%82%81/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/categories/%E3%81%BE%E3%81%A8%E3%82%81/</loc>
     <lastmod>2025-08-11T09:15:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E3%83%A9%E3%83%B3%E3%82%AD%E3%83%B3%E3%82%B0/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/%E3%83%A9%E3%83%B3%E3%82%AD%E3%83%B3%E3%82%B0/</loc>
     <lastmod>2025-08-11T09:15:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/my-af-site/tags/%E5%A3%B2%E4%B8%8A/</loc>
+    <loc>https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/%E5%A3%B2%E4%B8%8A/</loc>
     <lastmod>2025-08-11T09:15:00+09:00</lastmod>
   </url>
 </urlset>

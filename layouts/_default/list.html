@@ -68,6 +68,8 @@
     {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
     {{- if and (.Param "ShowImage") (.Params.images) }}
     <img src="{{ index .Params.images 0 }}" alt="{{ .Title }}" />
+    {{- else}}
+    <img src="../../static/images/no_image.png" alt="{{ `No Image` }}" />
     {{- end }}
     <header class="entry-header">
       <h2 class="entry-hint-parent">
