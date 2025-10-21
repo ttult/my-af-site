@@ -38,7 +38,8 @@ body.light, :root.light {
 
 /* サムネイル画像のサイズ調整 */
 .post-entry img {
-    width: 240px; /* 幅を指定 */
+    min-width: 240px; /* 幅を指定 */
+    max-width: 240px; /* 幅を指定 */
     height: 160px; /* 高さを指定 */
     object-fit: cover; /* 画像が歪まないように調整 */
     border-radius: 6px;
@@ -96,8 +97,11 @@ body.light, :root.light {
 }
 
 .grid-container .post-entry img {
-    width: 100%; /* 画像をカードの幅いっぱいに表示 */
+    min-width: 100%; /* 画像をカードの幅いっぱいに表示 */
+    max-width: 100%; /* 画像をカードの幅いっぱいに表示 */
     height: 100%; /* 画像の高さを固定 */
+    min-height: 150px;
+    max-height: 150px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     margin-right: 0;
