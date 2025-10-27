@@ -51,7 +51,28 @@
   {{- else }}{{ .Content }}{{ end }}
 </div>
 {{- end }}
-<button id="layout-toggle">レイアウト切替</button>
+<div id="layout-switch" class="layout-switch" role="toolbar" aria-label="レイアウト切替">
+  <button class="layout-btn" data-layout="grid" id="layout-grid" aria-pressed="false" title="グリッド表示" aria-label="グリッド表示">
+    <!-- grid icon -->
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="8" height="8"></rect>
+      <rect x="13" y="3" width="8" height="8"></rect>
+      <rect x="3" y="13" width="8" height="8"></rect>
+      <rect x="13" y="13" width="8" height="8"></rect>
+    </svg>
+  </button>
+  <button class="layout-btn" data-layout="list" id="layout-list" aria-pressed="false" title="リスト表示" aria-label="リスト表示">
+    <!-- list icon -->
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"></line>
+      <line x1="8" y1="12" x2="21" y2="12"></line>
+      <line x1="8" y1="18" x2="21" y2="18"></line>
+      <circle cx="3.5" cy="6" r="1.5"></circle>
+      <circle cx="3.5" cy="12" r="1.5"></circle>
+      <circle cx="3.5" cy="18" r="1.5"></circle>
+    </svg>
+  </button>
+</div>
 <div id="post-list">
 
 {{- range $index, $page := $paginator.Pages }}

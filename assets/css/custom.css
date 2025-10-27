@@ -134,3 +134,29 @@ body.light, :root.light {
     font-size: 16px;
     line-height: 1.3;
 }
+
+/* レイアウト切替ボタンのスタイル */
+.layout-switch {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.layout-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.layout-btn svg {
+    display: block;
+}
+.layout-btn.active {
+    background: var(--entry);
+    border-color: rgba(0,0,0,0.06);
+}

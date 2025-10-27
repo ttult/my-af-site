@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=38299&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
@@ -9,17 +9,17 @@
 <meta name="keywords" content="">
 <meta name="description" content="">
 <meta name="author" content="">
-<link rel="canonical" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/papermod/">
+<link rel="canonical" href="http://localhost:38299/tags/papermod/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/safari-pinned-tab.svg">
+<link rel="icon" href="http://localhost:38299/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:38299/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:38299/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:38299/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:38299/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/papermod/index.xml">
-<link rel="alternate" hreflang="ja" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/papermod/">
+<link rel="alternate" type="application/rss+xml" href="http://localhost:38299/tags/papermod/index.xml">
+<link rel="alternate" hreflang="ja" href="http://localhost:38299/tags/papermod/">
 <noscript>
     <style>
         #theme-toggle,
@@ -29,15 +29,47 @@
 
     </style>
 </noscript>
-<link rel="stylesheet" href="/css/custom.min.07b577dd18cd93df9e386425b82dcdcb6d92d28e6161722926c533c3e16d2632.css" integrity="sha256-B7V33RjNk9&#43;eOGQluC3Ny22S0o5hYXIpJsUzw&#43;FtJjI=">
+<link rel="stylesheet" href="/css/custom.min.28a95785b4392ddad56ccc468740d6ff33e5a11dd05be9f19becb8160b3cd4e6.css" integrity="sha256-KKlXhbQ5LdrVbMxGh0DW/zPloR3QW&#43;nxm&#43;y4Fgs81OY=">
 <script defer>
     document.addEventListener('DOMContentLoaded', () => {
-        const toggleButton = document.getElementById('layout-toggle');
+        const layoutSwitch = document.getElementById('layout-switch');
         const postList = document.getElementById('post-list');
+        const GRID_CLASS = 'grid-container';
 
-        if (toggleButton && postList) { 
-            toggleButton.addEventListener('click', () => {
-                postList.classList.toggle('grid-container');
+        if (!postList) return; 
+
+        
+        function applyLayout(layout) {
+            if (layout === 'grid') {
+                postList.classList.add(GRID_CLASS);
+            } else {
+                postList.classList.remove(GRID_CLASS);
+            }
+
+            if (layoutSwitch) {
+                const btns = layoutSwitch.querySelectorAll('[data-layout]');
+                btns.forEach(btn => {
+                    const isActive = btn.dataset.layout === layout;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', String(isActive));
+                });
+            }
+
+            try { localStorage.setItem('preferredLayout', layout); } catch (e) {   }
+        }
+
+        
+        let saved = null;
+        try { saved = localStorage.getItem('preferredLayout'); } catch (e) {   }
+        const initial = saved || 'grid';
+        applyLayout(initial);
+
+        
+        if (layoutSwitch) {
+            layoutSwitch.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-layout]');
+                if (!btn) return;
+                applyLayout(btn.dataset.layout);
             });
         }
     });
@@ -55,7 +87,7 @@
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/" accesskey="h" title="Ultimate ROOM (Alt + H)">Ultimate ROOM</a>
+            <a href="http://localhost:38299/" accesskey="h" title="Ultimate ROOM (Alt + H)">Ultimate ROOM</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -81,22 +113,22 @@
         </div>
         <ul id="menu">
             <li>
-                <a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/" title="ホーム">
+                <a href="http://localhost:38299/" title="ホーム">
                     <span>ホーム</span>
                 </a>
             </li>
             <li>
-                <a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/categories/" title="Categories">
+                <a href="http://localhost:38299/categories/" title="Categories">
                     <span>Categories</span>
                 </a>
             </li>
             <li>
-                <a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/" title="Tags">
+                <a href="http://localhost:38299/tags/" title="Tags">
                     <span>Tags</span>
                 </a>
             </li>
             <li>
-                <a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/about/" title="このサイトについて">
+                <a href="http://localhost:38299/about/" title="このサイトについて">
                     <span>このサイトについて</span>
                 </a>
             </li>
@@ -104,27 +136,48 @@
     </nav>
 </header>
 <main class="main"> 
-<header class="page-header"><div class="breadcrumbs"><a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/">ホーム</a>&nbsp;»&nbsp;<a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/tags/">Tags</a></div>
+<header class="page-header"><div class="breadcrumbs"><a href="http://localhost:38299/">ホーム</a>&nbsp;»&nbsp;<a href="http://localhost:38299/tags/">Tags</a></div>
   <h1>
     PaperMod
   </h1>
 </header>
-<button id="layout-toggle">レイアウト切替</button>
+<div id="layout-switch" class="layout-switch" role="toolbar" aria-label="レイアウト切替">
+  <button class="layout-btn" data-layout="grid" id="layout-grid" aria-pressed="false" title="グリッド表示" aria-label="グリッド表示">
+    
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="8" height="8"></rect>
+      <rect x="13" y="3" width="8" height="8"></rect>
+      <rect x="3" y="13" width="8" height="8"></rect>
+      <rect x="13" y="13" width="8" height="8"></rect>
+    </svg>
+  </button>
+  <button class="layout-btn" data-layout="list" id="layout-list" aria-pressed="false" title="リスト表示" aria-label="リスト表示">
+    
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"></line>
+      <line x1="8" y1="12" x2="21" y2="12"></line>
+      <line x1="8" y1="18" x2="21" y2="18"></line>
+      <circle cx="3.5" cy="6" r="1.5"></circle>
+      <circle cx="3.5" cy="12" r="1.5"></circle>
+      <circle cx="3.5" cy="18" r="1.5"></circle>
+    </svg>
+  </button>
+</div>
 <div id="post-list">
   <article class="post-entry tag-entry"> 
-    <img src="../../static/images/no_image.png" alt="No Image" />
+    <img src="/images/no_image.png" alt="No Image" />
     <header class="entry-header">
       <h2 class="entry-hint-parent">First Post
       </h2>
     </header>
     <footer class="entry-footer"><span title='2025-08-13 10:00:00 +0900 +0900'>8月 13, 2025</span></footer>
-    <a class="entry-link" aria-label="post link to First Post" href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/posts/first-post/"></a>
+    <a class="entry-link" aria-label="post link to First Post" href="http://localhost:38299/posts/first-post/"></a>
   </article>
 </div>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2025 <a href="https://orange-potato-974qjwrr9x9vc7r5x-1313.app.github.dev:1313/">Ultimate ROOM</a></span> · 
+        <span>&copy; 2025 <a href="http://localhost:38299/">Ultimate ROOM</a></span> · 
 
     <span>
         Powered by

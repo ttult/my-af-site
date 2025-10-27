@@ -5,12 +5,44 @@
 <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
 <script defer>
     document.addEventListener('DOMContentLoaded', () => {
-        const toggleButton = document.getElementById('layout-toggle');
+        const layoutSwitch = document.getElementById('layout-switch');
         const postList = document.getElementById('post-list');
+        const GRID_CLASS = 'grid-container';
 
-        if (toggleButton && postList) { // 👈 要素が存在するか確認
-            toggleButton.addEventListener('click', () => {
-                postList.classList.toggle('grid-container');
+        if (!postList) return; // 対象が無ければ何もしない
+
+        // レイアウト適用ロジック
+        function applyLayout(layout) {
+            if (layout === 'grid') {
+                postList.classList.add(GRID_CLASS);
+            } else {
+                postList.classList.remove(GRID_CLASS);
+            }
+
+            if (layoutSwitch) {
+                const btns = layoutSwitch.querySelectorAll('[data-layout]');
+                btns.forEach(btn => {
+                    const isActive = btn.dataset.layout === layout;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', String(isActive));
+                });
+            }
+
+            try { localStorage.setItem('preferredLayout', layout); } catch (e) { /* ignore */ }
+        }
+
+        // 初期化（localStorageを優先）
+        let saved = null;
+        try { saved = localStorage.getItem('preferredLayout'); } catch (e) { /* ignore */ }
+        const initial = saved || 'grid';
+        applyLayout(initial);
+
+        // クリックイベント（ボタン子要素のクリックに対応）
+        if (layoutSwitch) {
+            layoutSwitch.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-layout]');
+                if (!btn) return;
+                applyLayout(btn.dataset.layout);
             });
         }
     });
