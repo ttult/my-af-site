@@ -2,38 +2,38 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Categories on Ultimate ROOM</title>
-    <link>http://localhost:38299/categories/</link>
+    <link>http://localhost:1313/categories/</link>
     <description>Recent content in Categories on Ultimate ROOM</description>
     <generator>Hugo -- 0.148.0</generator>
     <language>ja</language>
     <lastBuildDate>Wed, 01 Oct 2025 15:00:00 +0900</lastBuildDate>
-    <atom:link href="http://localhost:38299/categories/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>同人</title>
-      <link>http://localhost:38299/categories/%E5%90%8C%E4%BA%BA/</link>
+      <link>http://localhost:1313/categories/%E5%90%8C%E4%BA%BA/</link>
       <pubDate>Wed, 01 Oct 2025 15:00:00 +0900</pubDate>
-      <guid>http://localhost:38299/categories/%E5%90%8C%E4%BA%BA/</guid>
+      <guid>http://localhost:1313/categories/%E5%90%8C%E4%BA%BA/</guid>
       <description></description>
     </item>
     <item>
       <title>Tech</title>
-      <link>http://localhost:38299/categories/tech/</link>
+      <link>http://localhost:1313/categories/tech/</link>
       <pubDate>Wed, 13 Aug 2025 10:00:00 +0900</pubDate>
-      <guid>http://localhost:38299/categories/tech/</guid>
+      <guid>http://localhost:1313/categories/tech/</guid>
       <description></description>
     </item>
     <item>
       <title>ゲーム</title>
-      <link>http://localhost:38299/categories/%E3%82%B2%E3%83%BC%E3%83%A0/</link>
+      <link>http://localhost:1313/categories/%E3%82%B2%E3%83%BC%E3%83%A0/</link>
       <pubDate>Tue, 12 Aug 2025 14:30:00 +0900</pubDate>
-      <guid>http://localhost:38299/categories/%E3%82%B2%E3%83%BC%E3%83%A0/</guid>
+      <guid>http://localhost:1313/categories/%E3%82%B2%E3%83%BC%E3%83%A0/</guid>
       <description></description>
     </item>
     <item>
       <title>まとめ</title>
-      <link>http://localhost:38299/categories/%E3%81%BE%E3%81%A8%E3%82%81/</link>
+      <link>http://localhost:1313/categories/%E3%81%BE%E3%81%A8%E3%82%81/</link>
       <pubDate>Mon, 11 Aug 2025 09:15:00 +0900</pubDate>
-      <guid>http://localhost:38299/categories/%E3%81%BE%E3%81%A8%E3%82%81/</guid>
+      <guid>http://localhost:1313/categories/%E3%81%BE%E3%81%A8%E3%82%81/</guid>
       <description></description>
     </item>
   </channel>

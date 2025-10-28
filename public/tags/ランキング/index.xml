@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>ランキング on Ultimate ROOM</title>
-    <link>http://localhost:38299/tags/%E3%83%A9%E3%83%B3%E3%82%AD%E3%83%B3%E3%82%B0/</link>
+    <link>http://localhost:1313/tags/%E3%83%A9%E3%83%B3%E3%82%AD%E3%83%B3%E3%82%B0/</link>
     <description>Recent content in ランキング on Ultimate ROOM</description>
     <generator>Hugo -- 0.148.0</generator>
     <language>ja</language>
     <lastBuildDate>Mon, 11 Aug 2025 09:15:00 +0900</lastBuildDate>
-    <atom:link href="http://localhost:38299/tags/%E3%83%A9%E3%83%B3%E3%82%AD%E3%83%B3%E3%82%B0/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/%E3%83%A9%E3%83%B3%E3%82%AD%E3%83%B3%E3%82%B0/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>サンプル記事3 - 人気ランキングまとめ</title>
-      <link>http://localhost:38299/posts/sample3/</link>
+      <link>http://localhost:1313/posts/sample3/</link>
       <pubDate>Mon, 11 Aug 2025 09:15:00 +0900</pubDate>
-      <guid>http://localhost:38299/posts/sample3/</guid>
+      <guid>http://localhost:1313/posts/sample3/</guid>
       <description>&lt;p&gt;これはサンプル記事3の本文です。人気作品のランキングをまとめたものです。&lt;/p&gt;</description>
     </item>
   </channel>
