@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     
-    # ⚠️ 修正 1: ENVを定義する（このブロックは変更なし）
+    # 📝 envの定義は維持（この方が分かりやすいため）
     env:
       CUSTOM_DOMAIN_URL: ${{ vars.CUSTOM_DOMAIN }}
       
@@ -26,22 +26,26 @@ jobs:
           hugo-version: 'latest'
 
       # ==========================================================
-      # 🛠️ 修正 2: baseURL の上書き（参照方法の修正）
+      # 🛠️ 修正 1: baseURL の上書き
       # ==========================================================
-      # 以前のバージョンでは参照が失敗しました。今回は直接 vars を参照することで回避します。
       - name: Build Hugo site (Override baseURL)
-        # run コマンド内で直接 vars.CUSTOM_DOMAIN を参照
+        # Hugoコマンドに Variables の値（フルURL）を直接渡す
         run: hugo --minify --baseURL ${{ vars.CUSTOM_DOMAIN }} 
 
 
       # ==========================================================
-      # 🛠️ 修正 3: CNAME ファイルの動的作成（文字列操作の修正）
+      # 🛠️ 修正 2: CNAME ファイルの動的作成（構文エラー回避のため修正）
       # ==========================================================
+      # 複数のコマンドを '|' で囲むことで、単一のスクリプトとして実行させる
       - name: Create CNAME file from Variable
+        shell: bash 
         run: |
-          # Bashの文字列置換機能を使用します。
+          # 環境変数から値を取得
+          FULL_URL="${{ vars.CUSTOM_DOMAIN }}"
+          
           # 1. https:// を削除
-          DOMAIN_ONLY="${{ vars.CUSTOM_DOMAIN }/https:\/\//}"
+          DOMAIN_ONLY="${FULL_URL/https:\/\//}"
+          
           # 2. 末尾の / を削除（もしあれば）
           DOMAIN_ONLY="${DOMAIN_ONLY/\//}"
           
