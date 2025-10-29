@@ -4,7 +4,7 @@
     <title>Posts on Ultimate ROOM</title>
     <link>http://localhost:1313/posts/</link>
     <description>Recent content in Posts on Ultimate ROOM</description>
-    <generator>Hugo -- 0.148.0</generator>
+    <generator>Hugo -- 0.151.1</generator>
     <language>ja</language>
     <lastBuildDate>Wed, 01 Oct 2025 15:00:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />

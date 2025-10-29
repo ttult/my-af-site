@@ -8,6 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
+    # 📝 環境変数を定義して、カスタムドメインの Variables を使えるようにする
+    env:
+      CUSTOM_DOMAIN_URL: ${{ vars.CUSTOM_DOMAIN }} # https://www.ultimateroom.net
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,8 +25,28 @@ jobs:
         with:
           hugo-version: 'latest'
 
-      - name: Build Hugo site
-        run: hugo --minify
+      # ==========================================================
+      # 🛠️ 修正 1: baseURL を Variables から取得した値で上書きする
+      # ==========================================================
+      - name: Build Hugo site (Override baseURL)
+        # --baseURL フラグに Variables の値（フルURL）を渡す
+        run: hugo --minify --baseURL ${{ env.CUSTOM_DOMAIN_URL }} 
+        # (注: ここで .env.CUSTOM_DOMAIN_URL を使うため、jobs レベルの env に設定しています)
+
+      # ==========================================================
+      # 🛠️ 修正 2: CNAME ファイルを動的に作成する
+      # ==========================================================
+      - name: Create CNAME file from Variable
+        run: |
+          # 1. URLから 'https://' と末尾の '/' を取り除く (ドメイン名のみ抽出)
+          # Bashの文字列置換機能を使用: ${変数/検索パターン/置換文字列}
+          DOMAIN_ONLY=${CUSTOM_DOMAIN_URL/https:\/\//} 
+          DOMAIN_ONLY=${DOMAIN_ONLY/\//}
+          
+          # 2. public/CNAME にドメイン名のみを書き込む
+          echo "${DOMAIN_ONLY}" > ./public/CNAME
+          echo "✅ CNAME file created with: ${DOMAIN_ONLY}"
+
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
