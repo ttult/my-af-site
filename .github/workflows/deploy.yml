@@ -9,16 +9,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     
-    # 📝 環境変数を定義して、カスタムドメインの Variables を使えるようにする
+    # ⚠️ 修正 1: ENVを定義する（このブロックは変更なし）
     env:
-      CUSTOM_DOMAIN_URL: ${{ vars.CUSTOM_DOMAIN }} # https://www.ultimateroom.net
+      CUSTOM_DOMAIN_URL: ${{ vars.CUSTOM_DOMAIN }}
       
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: true  # サブモジュール（テーマ）もチェックアウト
-          fetch-depth: 0    # すべてのブランチ履歴を取得
+          submodules: true
+          fetch-depth: 0
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
@@ -26,24 +26,26 @@ jobs:
           hugo-version: 'latest'
 
       # ==========================================================
-      # 🛠️ 修正 1: baseURL を Variables から取得した値で上書きする
+      # 🛠️ 修正 2: baseURL の上書き（参照方法の修正）
       # ==========================================================
+      # 以前のバージョンでは参照が失敗しました。今回は直接 vars を参照することで回避します。
       - name: Build Hugo site (Override baseURL)
-        # --baseURL フラグに Variables の値（フルURL）を渡す
-        run: hugo --minify --baseURL ${{ env.CUSTOM_DOMAIN_URL }} 
-        # (注: ここで .env.CUSTOM_DOMAIN_URL を使うため、jobs レベルの env に設定しています)
+        # run コマンド内で直接 vars.CUSTOM_DOMAIN を参照
+        run: hugo --minify --baseURL ${{ vars.CUSTOM_DOMAIN }} 
+
 
       # ==========================================================
-      # 🛠️ 修正 2: CNAME ファイルを動的に作成する
+      # 🛠️ 修正 3: CNAME ファイルの動的作成（文字列操作の修正）
       # ==========================================================
       - name: Create CNAME file from Variable
         run: |
-          # 1. URLから 'https://' と末尾の '/' を取り除く (ドメイン名のみ抽出)
-          # Bashの文字列置換機能を使用: ${変数/検索パターン/置換文字列}
-          DOMAIN_ONLY=${CUSTOM_DOMAIN_URL/https:\/\//} 
-          DOMAIN_ONLY=${DOMAIN_ONLY/\//}
+          # Bashの文字列置換機能を使用します。
+          # 1. https:// を削除
+          DOMAIN_ONLY="${{ vars.CUSTOM_DOMAIN }/https:\/\//}"
+          # 2. 末尾の / を削除（もしあれば）
+          DOMAIN_ONLY="${DOMAIN_ONLY/\//}"
           
-          # 2. public/CNAME にドメイン名のみを書き込む
+          # 3. public/CNAME にドメイン名のみを書き込む
           echo "${DOMAIN_ONLY}" > ./public/CNAME
           echo "✅ CNAME file created with: ${DOMAIN_ONLY}"
 
@@ -53,4 +55,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-          force_orphan: true # 新しいコミット履歴で置き換える
+          force_orphan: true
