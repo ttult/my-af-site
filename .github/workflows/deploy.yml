@@ -9,10 +9,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     
-    # 📝 envの定義は維持（この方が分かりやすいため）
-    env:
-      CUSTOM_DOMAIN_URL: ${{ vars.CUSTOM_DOMAIN }}
-      
+    # ==========================================================
+    # 🚨 必須の修正: Environment の指定 🚨
+    # ==========================================================
+    environment: github-pages # 👈 この行を追加することで Variables が読み込まれます
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,21 +27,24 @@ jobs:
           hugo-version: 'latest'
 
       # ==========================================================
-      # 🛠️ 修正 1: baseURL の上書き
+      # 修正 1: baseURL の上書き
       # ==========================================================
       - name: Build Hugo site (Override baseURL)
-        # Hugoコマンドに Variables の値（フルURL）を直接渡す
-        run: hugo --minify --baseURL ${{ vars.CUSTOM_DOMAIN }} 
-
+        run: |
+          # Variables の値をシェル変数に代入
+          HUGO_BASE_URL="${{ vars.CUSTOM_DOMAIN }}"
+          
+          # Hugo ビルド実行
+          hugo --minify --baseURL "$HUGO_BASE_URL"
+          echo "✅ Building site with baseURL: $HUGO_BASE_URL" # ログで確認用に追加
 
       # ==========================================================
-      # 🛠️ 修正 2: CNAME ファイルの動的作成（構文エラー回避のため修正）
+      # 修正 2: CNAME ファイルの動的作成
       # ==========================================================
-      # 複数のコマンドを '|' で囲むことで、単一のスクリプトとして実行させる
       - name: Create CNAME file from Variable
         shell: bash 
         run: |
-          # 環境変数から値を取得
+          # Variables の値をシェル変数に代入
           FULL_URL="${{ vars.CUSTOM_DOMAIN }}"
           
           # 1. https:// を削除
@@ -52,7 +56,6 @@ jobs:
           # 3. public/CNAME にドメイン名のみを書き込む
           echo "${DOMAIN_ONLY}" > ./public/CNAME
           echo "✅ CNAME file created with: ${DOMAIN_ONLY}"
-
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
