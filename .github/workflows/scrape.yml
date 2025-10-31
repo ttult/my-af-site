@@ -1,0 +1,38 @@
+name: Push MGS Scrape Test
+
+on:
+  # 💡 変更点: mainブランチへのプッシュでのみ実行
+  push:
+    branches:
+      - main
+  # 手動実行できるトリガーは残しておくと便利です
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Playwright and Dependencies
+        run: |
+          pip install playwright
+          playwright install-deps
+          playwright install
+
+      - name: Run Scraper Script
+        # 💡 あなたの Playwright スクリプトを実行
+        run: |
+          python scrape_mgs.py 
+
+      # (オプション) 実行結果をログとして確認する
+      - name: Check Scraper Log
+        if: always()
+        run: |
+          echo "Scraping job finished."

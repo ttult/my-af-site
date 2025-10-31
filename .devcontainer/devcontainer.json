@@ -16,7 +16,13 @@
     "git submodule update --init --recursive",
     
     // 3. Pythonの依存関係のインストール (requirements.txtを利用)
-    "pip install -r requirements.txt"
+    "pip install -r requirements.txt",
+
+    // 4. playwright関連のインストール
+    "playwright install",
+
+    // 🚨 5. ブラウザ実行に必要なOSの依存関係をインストール (今回のエラー対策)
+    "playwright install-deps"
   ],
 
   // VS Code拡張機能の推奨
