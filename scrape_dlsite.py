@@ -1,155 +1,167 @@
-import requests
-from bs4 import BeautifulSoup
-import json
-import os
+import asyncio
 import time
-from datetime import date
-import re
+import os
+import sys
+from datetime import datetime
+from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+from bs4 import BeautifulSoup # ★追加：BeautifulSoupをインポート
 
-# --- 1. 定数設定 ---
-# 出力ファイルパス (Hugoのデータディレクトリ)
-DATA_OUTPUT_PATH = 'data/dlsite_new.json'
+# 実行日の日付を取得し、URLに組み込む
+TODAY_DATE_STR = datetime.now().strftime("%Y-%m-%d")
+ACCESS_DELAY = 5 # 秒: サーバー負荷軽減のための待機時間
 
-# --- 2. URL動的生成 ---
-def generate_target_url():
-    """実行日当日のDLsite新作一覧URLを生成する (YYYY-MM-DD形式)"""
-    today = date.today().strftime("%Y-%m-%d") 
-    url = f'https://www.dlsite.com/maniax/new/=/date/{today}/'
-    print(f"ターゲットURL: {url}")
-    return url
+# ターゲットURLをDLsite Maniaxの当日新着作品一覧ページに設定
+HOME_URL = f"https://www.dlsite.com/maniax/new/=/date/{TODAY_DATE_STR}/"
 
-# --- 3. HTMLの取得 ---
-def fetch_html(url, delay):
-    """指定されたURLからHTMLを取得し、負荷対策として遅延を入れる"""
-    time.sleep(delay)  # 負荷対策のための遅延
-    try:
-        # User-Agentを設定（ブラウザからのアクセスに見せかける）
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        response = requests.get(url, headers=headers, timeout=15)
-        response.raise_for_status() # 200番台以外のステータスコードなら例外発生
-        return response.text
-    except requests.exceptions.RequestException as e:
-        print(f"--- ⚠️ Error fetching URL {url}: {e}")
-        return None
+# DLsiteのセレクター定義
+# 実行結果でポップアップがスキップされたため、今回はパース処理に集中しますが、コードは残します。
+LANGUAGE_SELECTOR = '#language_select_ja' 
+AGE_CONFIRM_SELECTOR = '//*[@id="age_confirm"]/div/div/div[2]/button[2]' 
 
-# --- 4. 第1段階: 一覧ページから作品IDリストを抽出 ---
-def get_product_ids(html_content):
-    """一覧ページからRJコード(作品ID)のリストを抽出する"""
-    if not html_content:
-        return []
+OUTPUT_FILENAME = "dlsite_new_products_final.html"
 
+# ==========================================================
+# 🚀 Playwrightによる非同期スクレイピング関数（変更なし）
+# ==========================================================
+async def scrape_dlsite_new_products(target_url: str, headless_mode: bool = True):
+    """
+    Playwright (Chromium) を使用してDLsiteにアクセスし、言語選択と年齢確認を処理します。
+    """
+    print(f"ターゲットURL: {target_url}")
+    print(f"--- Playwright ブラウザ起動中 (Headless: {headless_mode}) ---")
+
+    async with async_playwright() as p:
+        # browserコンテキスト設定
+        browser = await p.chromium.launch(
+            headless=headless_mode,
+            args=['--no-sandbox', '--disable-blink-features=AutomationControlled'],
+            timeout=90000
+        )
+        page = await browser.new_page()
+
+        try:
+            # 1. ページにアクセス
+            await page.goto(target_url, wait_until='domcontentloaded', timeout=90000)
+            
+            # --- 処理 A: 言語選択ポップアップの対応 ---
+            print("--- 処理 A: 言語選択ポップアップの確認中 ---")
+            try:
+                await page.wait_for_selector(LANGUAGE_SELECTOR, timeout=10000)
+                await page.click(LANGUAGE_SELECTOR)
+                print("✅ 言語選択ポップアップを「日本語」で閉じました。")
+                await page.wait_for_load_state("domcontentloaded", timeout=15000)
+            except PlaywrightTimeoutError:
+                print("--- 処理 A: 言語選択ポップアップは表示されていませんでした。 ---")
+            
+            # --- 処理 B: 18歳以上確認モーダルの対応 ---
+            print("--- 処理 B: 18歳以上確認モーダルの確認中 ---")
+            try:
+                await page.wait_for_selector(AGE_CONFIRM_SELECTOR, timeout=10000)
+                await page.click(AGE_CONFIRM_SELECTOR)
+                print("✅ 18歳以上確認モーダルを「はい」で閉じました。")
+                await page.wait_for_load_state("domcontentloaded", timeout=15000)
+            except PlaywrightTimeoutError:
+                print("--- 処理 B: 18歳以上確認モーダルは表示されていませんでした。 ---")
+            # ------------------------------------
+
+            # サーバー負荷軽減のための意図的な待機
+            print(f"--- 待機中: {ACCESS_DELAY}秒 ---")
+            time.sleep(ACCESS_DELAY)  
+
+            html_content = await page.content()
+            await browser.close()
+            
+            if "403 ERROR" in html_content or "アクセスがブロックされました" in html_content:
+                print("--- 🚨 アクセスがブロックされています。 ---")
+                return None
+                
+            print("✅ Playwrightによるアクセス成功！HTMLデータを受信しました。")
+            return html_content
+
+        except Exception as e:
+            await browser.close()
+            print(f"--- ⚠️ Playwright アクセスエラー: {type(e).__name__}: {e} ---")
+            return None
+
+# ==========================================================
+# ★追加★ データのパース（抽出）処理
+# ==========================================================
+def parse_html_for_products(html_content: str):
+    """
+    DLsiteの新着作品一覧HTMLから、作品名とURLを抽出します。
+    """
+    print("\n--- データをHTMLから抽出中 ---")
     soup = BeautifulSoup(html_content, 'html.parser')
-    ids = []
+    products = []
+
+    # DLsiteの作品一覧のタイトルリンクのCSSセレクター
+    # div.work_1col > dl > dt > a は、作品のタイトルとリンクを保持する要素です。
+    product_links = soup.select('#search_result div.work_1col > dl > dt > a') 
     
-    # 新作一覧ページの作品リンク要素からRJコードを抽出
-    # セレクタはDLsiteのHTML構造に合わせています
-    product_links = soup.select('div.work_item a.work_link') 
-    
+    if not product_links:
+        print("--- ⚠️ 作品データ（リンク）が見つかりませんでした。本日の新着がないか確認してください。 ---")
+        
     for link in product_links:
-        href = link.get('href')
-        if href and 'product_id' in href:
-            # URLから RJxxxxxx の部分を正規表現で抽出
-            match = re.search(r'product_id/([a-zA-Z0-9]+)\.html', href)
-            if match:
-                ids.append(match.group(1))
-    
-    unique_ids = list(set(ids))
-    print(f"--- ✅ 一覧から {len(unique_ids)} 件の作品IDを抽出しました。")
-    return unique_ids
-
-# --- 5. 第2段階: 詳細ページからデータを抽出 ---
-def scrape_product_details(product_id):
-    """個別の作品詳細ページにアクセスし、詳細データを抽出する"""
-    detail_url = f'https://www.dlsite.com/maniax/work/=/product_id/{product_id}.html'
-    
-    # ⚠️ 負荷対策として10秒遅延 ⚠️
-    html = fetch_html(detail_url, delay=10) 
-    
-    if not html:
-        return None
-
-    soup = BeautifulSoup(html, 'html.parser')
-    data = {'id': product_id, 'url': detail_url}
-
-    try:
-        # タイトル
-        data['title'] = soup.select_one('#work_name a').text.strip()
+        title = link.get_text(strip=True)
+        # URLは常に絶対URLで取得できる
+        url = link.get('href')
         
-        # 作者/サークル名
-        maker_tag = soup.select_one('#work_maker a.maker_name') 
-        data['maker'] = maker_tag.text.strip() if maker_tag else '作者情報なし'
+        products.append({
+            'title': title,
+            'url': url
+        })
 
-        # サムネイル画像URL（メイン画像）
-        img_tag = soup.select_one('#work_image img')
-        # data-src属性があればそれを優先（遅延読み込み対策）
-        data['image_url'] = img_tag.get('data-src', img_tag.get('src')) if img_tag else ''
+    print(f"✅ **{len(products)}件**の作品データを抽出しました。")
+    return products
 
-        # 価格
-        # 価格情報が格納されているセレクタ
-        price_text = soup.select_one('.work_detail_area .price').text.strip() if soup.select_one('.work_detail_area .price') else '価格情報なし'
-        data['price_text'] = price_text
 
-        # タグ/ジャンル
-        tags = []
-        # work_outline内のタグやジャンルのリンクを抽出
-        category_table = soup.select_one('#work_outline')
-        if category_table:
-            # ジャンル、属性などのaタグをすべて取得
-            tags = [a.text.strip() for a in category_table.select('a[href*="/genre/"], a[href*="/attribute/"]')]
-
-        data['tags'] = tags
-        
-        print(f"--- 📊 成功: {data['id']} - {data['title'][:20]}...")
-        return data
-
-    except AttributeError:
-        print(f"--- ❌ エラー: {product_id} - 必要な情報が見つかりませんでした。スキップします。")
-        return None
-    except Exception as e:
-        print(f"--- ❌ エラー: {product_id} - 処理中に予期せぬエラーが発生しました: {e}")
-        return None
-
-# --- 6. データ出力 ---
-def save_to_json(data):
-    """データをJSON形式でHugoのデータディレクトリに保存する"""
-    # dataフォルダがなければ作成
-    os.makedirs(os.path.dirname(DATA_OUTPUT_PATH), exist_ok=True)
+# ==========================================================
+# 実行メイン処理
+# ==========================================================
+def main():
+    # コマンドライン引数に '--head' があるかチェック
+    headless_mode = '--head' not in sys.argv
     
-    # Hugoのデータファイル形式に合わせてデータを格納
-    output_data = {
-        "products": data 
-    }
+    print(f"**実行日付**: {TODAY_DATE_STR}")
+    target_url = HOME_URL
     
-    with open(DATA_OUTPUT_PATH, 'w', encoding='utf-8') as f:
-        # JSONを読みやすく（インデント付き）で保存
-        json.dump(output_data, f, ensure_ascii=False, indent=4)
-    print(f"\n✅ 全処理完了: 正常に {len(data)} 件の作品データを {DATA_OUTPUT_PATH} に保存しました。")
+    # 非同期関数を実行し、HTMLデータを取得
+    html_data = asyncio.run(scrape_dlsite_new_products(target_url, headless_mode))
+    
+    if html_data:
+        # HTMLデータをファイルに書き出す (デバッグ用)
+        try:
+            with open(OUTPUT_FILENAME, "w", encoding="utf-8") as f:
+                f.write(html_data)
+            # HTMLの長さやタイトルはPlaywrightパートで出力済みのため省略
+        except Exception as file_error:
+             print(f"--- ⚠️ ファイル書き込みエラー: {file_error} ---")
 
-# --- メイン実行 ---
-if __name__ == "__main__":
-    # 1. ターゲットURLを生成し、HTMLを取得
-    target_url = generate_target_url()
-    list_html = fetch_html(target_url, delay=5) # 一覧アクセス時は5秒待機
-
-    if not list_html:
-        print("\n--- 🛑 処理中断: 一覧ページの取得に失敗しました。")
-    else:
-        # 2. 作品IDリストを取得
-        product_ids = get_product_ids(list_html)
+        # データのパース（抽出）を実行
+        extracted_products = parse_html_for_products(html_data)
         
-        if not product_ids:
-            print("\n--- ℹ️ 情報: 本日新作の情報が見つかりませんでした。処理を終了します。")
+        # 抽出結果の表示
+        print("\n--- 抽出された作品データ（上位5件） ---")
+        if extracted_products:
+            for i, product in enumerate(extracted_products[:5]):
+                print(f"[{i+1}] タイトル: **{product['title']}**")
+                print(f"    URL: {product['url']}")
+            if len(extracted_products) > 5:
+                print(f"  ...他 {len(extracted_products) - 5}件")
         else:
-            final_products = []
+             print("抽出できる作品はありませんでした。")
             
-            # 3. 各作品の詳細ページをスクレイピング (10秒遅延)
-            for i, pid in enumerate(product_ids):
-                print(f"処理中 ({i+1}/{len(product_ids)}): {pid} の詳細を取得...")
-                detail = scrape_product_details(pid)
-                if detail:
-                    final_products.append(detail)
+        print("--------------------------------------")
+
+    else:
+        print("データ取得に失敗したため、処理を中断します。")
+
+
+if __name__ == "__main__":
+    if os.name == 'nt':
+        try:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        except AttributeError:
+            pass
             
-            # 4. JSONファイルとして保存
-            save_to_json(final_products)
+    main()
