@@ -1,0 +1,51 @@
+/* カード全体をグリッドで整列 */
+.post-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* 各カードの基本スタイル */
+.post-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ホバー効果 */
+.post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* リンク全体をクリック可能に */
+.post-card a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* サムネイル画像 */
+.post-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+/* タイトル */
+.post-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0.8rem 1rem 0.4rem;
+}
+
+/* 説明文 */
+.post-excerpt {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 1rem 1rem;
+  line-height: 1.4;
+}
