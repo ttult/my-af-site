@@ -4,34 +4,37 @@ import os
 import sys
 from datetime import datetime
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
-from bs4 import BeautifulSoup # ★追加：BeautifulSoupをインポート
-
-# 実行日の日付を取得し、URLに組み込む
-TODAY_DATE_STR = datetime.now().strftime("%Y-%m-%d")
-ACCESS_DELAY = 5 # 秒: サーバー負荷軽減のための待機時間
-
-# ターゲットURLをDLsite Maniaxの当日新着作品一覧ページに設定
-HOME_URL = f"https://www.dlsite.com/maniax/new/=/date/{TODAY_DATE_STR}/"
-
-# DLsiteのセレクター定義
-# 実行結果でポップアップがスキップされたため、今回はパース処理に集中しますが、コードは残します。
-LANGUAGE_SELECTOR = '#language_select_ja' 
-AGE_CONFIRM_SELECTOR = '//*[@id="age_confirm"]/div/div/div[2]/button[2]' 
-
-OUTPUT_FILENAME = "dlsite_new_products_final.html"
+from bs4 import BeautifulSoup
+# タイムゾーン処理のためにpytzを追加（インストールが必要です: pip install pytz）
+try:
+    import pytz
+except ImportError:
+    print("pytz not found. Please install it using: pip install pytz")
+    sys.exit(1)
 
 # ==========================================================
-# 🚀 Playwrightによる非同期スクレイピング関数（変更なし）
+# ⚙️ 設定値
 # ==========================================================
-async def scrape_dlsite_new_products(target_url: str, headless_mode: bool = True):
+ACCESS_DELAY = 5 # 秒: サーバー負荷軽減のための最終待機時間
+MAX_ITEMS_TO_SCRAPE = 10 # 抽出する作品の最大件数
+
+# DLsiteのセレクター定義（Playwright用）
+LANGUAGE_SELECTOR_XPATH = '//div[@class="adult_check_box _adultcheck type_lang_select"]//a[text()="日本語"]' 
+AGE_CONFIRM_SELECTOR_CSS = '.btn_yes.btn-approval a' 
+ILLUST_TAB_SELECTOR_CSS = '.option_tab a:has-text("CG・イラスト")' 
+
+# ==========================================================
+# 🚀 Playwrightによる非同期スクレイピング関数
+# ==========================================================
+async def scrape_dlsite_new_products(target_url: str, today_date_str: str, headless_mode: bool = True):
     """
-    Playwright (Chromium) を使用してDLsiteにアクセスし、言語選択と年齢確認を処理します。
+    Playwright (Chromium) を使用してDLsiteにアクセスし、言語選択、年齢確認、カテゴリ切り替えを処理します。
     """
+    print(f"**実行日付**: {today_date_str}")
     print(f"ターゲットURL: {target_url}")
     print(f"--- Playwright ブラウザ起動中 (Headless: {headless_mode}) ---")
 
     async with async_playwright() as p:
-        # browserコンテキスト設定
         browser = await p.chromium.launch(
             headless=headless_mode,
             args=['--no-sandbox', '--disable-blink-features=AutomationControlled'],
@@ -40,121 +43,192 @@ async def scrape_dlsite_new_products(target_url: str, headless_mode: bool = True
         page = await browser.new_page()
 
         try:
-            # 1. ページにアクセス
             await page.goto(target_url, wait_until='domcontentloaded', timeout=90000)
             
             # --- 処理 A: 言語選択ポップアップの対応 ---
             print("--- 処理 A: 言語選択ポップアップの確認中 ---")
             try:
-                await page.wait_for_selector(LANGUAGE_SELECTOR, timeout=10000)
-                await page.click(LANGUAGE_SELECTOR)
+                await page.wait_for_selector(LANGUAGE_SELECTOR_XPATH, timeout=10000) 
+                await page.click(LANGUAGE_SELECTOR_XPATH)
                 print("✅ 言語選択ポップアップを「日本語」で閉じました。")
-                await page.wait_for_load_state("domcontentloaded", timeout=15000)
+                await page.wait_for_load_state("domcontentloaded", timeout=15000) 
             except PlaywrightTimeoutError:
                 print("--- 処理 A: 言語選択ポップアップは表示されていませんでした。 ---")
             
             # --- 処理 B: 18歳以上確認モーダルの対応 ---
             print("--- 処理 B: 18歳以上確認モーダルの確認中 ---")
             try:
-                await page.wait_for_selector(AGE_CONFIRM_SELECTOR, timeout=10000)
-                await page.click(AGE_CONFIRM_SELECTOR)
+                await page.wait_for_selector(AGE_CONFIRM_SELECTOR_CSS, timeout=10000)
+                await page.click(AGE_CONFIRM_SELECTOR_CSS)
                 print("✅ 18歳以上確認モーダルを「はい」で閉じました。")
                 await page.wait_for_load_state("domcontentloaded", timeout=15000)
             except PlaywrightTimeoutError:
                 print("--- 処理 B: 18歳以上確認モーダルは表示されていませんでした。 ---")
-            # ------------------------------------
 
-            # サーバー負荷軽減のための意図的な待機
-            print(f"--- 待機中: {ACCESS_DELAY}秒 ---")
-            time.sleep(ACCESS_DELAY)  
+            # --- 処理 C: カテゴリ切り替え（「すべて」から「CG・イラスト」へ） ---
+            print("--- 処理 C: カテゴリ切り替え（すべて -> CG・イラスト） ---")
+            
+            try:
+                illust_link = page.locator(ILLUST_TAB_SELECTOR_CSS)
+                
+                await illust_link.wait_for(state="visible", timeout=10000)
+                
+                # クリック実行（ページ遷移が発生することを許容）
+                await illust_link.click(timeout=10000) 
+                
+                # ★修正★ ページ遷移が発生したとみなし、ロード状態の完了を待機
+                await page.wait_for_load_state("domcontentloaded", timeout=30000) 
+                
+                print("✅ カテゴリを「CG・イラスト」に切り替えました。（遷移完了）")
+                
+            except Exception as e:
+                # 予期せぬエラー（要素が見つからないなど）の場合のみ警告
+                print(f"--- 処理 C: ⚠️ カテゴリ切り替えの操作で予期せぬエラーが発生しました: {e.__class__.__name__} ---")
+                
+            print(f"--- 最終待機中: {ACCESS_DELAY}秒 ---")
+            time.sleep(ACCESS_DELAY)  # サーバー負荷軽減
 
             html_content = await page.content()
             await browser.close()
-            
-            if "403 ERROR" in html_content or "アクセスがブロックされました" in html_content:
-                print("--- 🚨 アクセスがブロックされています。 ---")
-                return None
                 
             print("✅ Playwrightによるアクセス成功！HTMLデータを受信しました。")
             return html_content
+
 
         except Exception as e:
             await browser.close()
             print(f"--- ⚠️ Playwright アクセスエラー: {type(e).__name__}: {e} ---")
             return None
 
+
 # ==========================================================
-# ★追加★ データのパース（抽出）処理
+# 📊 データのパース（抽出）処理 - 複数件対応
 # ==========================================================
-def parse_html_for_products(html_content: str):
+def parse_html_for_products(html_content: str, max_items: int):
     """
-    DLsiteの新着作品一覧HTMLから、作品名とURLを抽出します。
+    DLsiteのHTMLから、作品名、URL、概要などを抽出します。
     """
-    print("\n--- データをHTMLから抽出中 ---")
+    print(f"\n--- データをHTMLから抽出中（最大{max_items}件） ---")
     soup = BeautifulSoup(html_content, 'html.parser')
     products = []
 
-    # DLsiteの作品一覧のタイトルリンクのCSSセレクター
-    # div.work_1col > dl > dt > a は、作品のタイトルとリンクを保持する要素です。
-    product_links = soup.select('#search_result div.work_1col > dl > dt > a') 
+    # 確定した作品タイトルリンクのセレクターを使用
+    product_links = soup.select('div.n_worklist_item .work_name a[href*="/product_id/"]') 
     
     if not product_links:
-        print("--- ⚠️ 作品データ（リンク）が見つかりませんでした。本日の新着がないか確認してください。 ---")
+        print("--- ⚠️ 作品データ（リンク）が見つかりませんでした。 ---")
+        return []
         
-    for link in product_links:
-        title = link.get_text(strip=True)
-        # URLは常に絶対URLで取得できる
+    for link in product_links[:max_items]: 
+        
+        # 1. 作品タイトル
+        title = link.get_text(strip=True) or link.get('title')
+        
+        # 2. 作品URLとID
         url = link.get('href')
+        full_url = f"https://www.dlsite.com{url}" if url and url.startswith('/') else url
+        product_id = full_url.split('/')[-1].replace('.html', '').replace('.txt', '')
         
-        products.append({
-            'title': title,
-            'url': url
-        })
+        # 3. 作品のテキストディスクリプション（概要）
+        dt_element = link.find_parent('dt')
+        description_element = dt_element.find_next_sibling('dd', class_='work_text') if dt_element else None
+        description = description_element.get_text(strip=True).replace('\n', ' ') if description_element else '詳細な説明なし'
 
+        # 4. 作者名 (抽出)
+        author_link = link.find_parent('dt').find_next_sibling('dd', class_='maker_name').select_one('a')
+        author_name = author_link.get_text(strip=True) if author_link else '不明'
+
+        products.append({
+            'product_id': product_id,
+            'title': title,
+            'url': full_url,
+            'description': description,
+            'author': author_name,
+        })
+        
     print(f"✅ **{len(products)}件**の作品データを抽出しました。")
     return products
 
 
 # ==========================================================
-# 実行メイン処理
+# 📝 Hugo向けMarkdownファイル生成関数
+# ==========================================================
+def create_hugo_markdown(product: dict, date_info: datetime):
+    """
+    抽出した作品情報からHugo形式のMarkdown文字列を生成します。
+    """
+    # Hugoのフロントマター
+    markdown_content = f"""+++
+title = "{product['title']}"
+date = "{date_info.isoformat()}"
+description = "{product['description'][:150]}..."
+product_id = "{product['product_id']}"
+author = "{product['author']}"
+dlsite_url = "{product['url']}"
+tags = ["dlscrapes", "cg-illust"]
+categories = ["new_releases"]
++++
+
+## {product['title']}
+
+{product['description']}
+
+---
+
+[DLsiteで見る]({product['url']})
+
+"""
+    return markdown_content
+
+# ==========================================================
+# 🏁 実行メイン処理
 # ==========================================================
 def main():
-    # コマンドライン引数に '--head' があるかチェック
+    # 実行日時とタイムゾーンの確定 (JST/Tokyo)
+    tokyo_tz = pytz.timezone('Asia/Tokyo')
+    now_tokyo = datetime.now(tokyo_tz)
+    TODAY_DATE_STR = now_tokyo.strftime('%Y-%m-%d')
+    CURRENT_MONTH_STR = now_tokyo.strftime('%Y-%m')
+
+    # 初期アクセスURLの動的生成
+    HOME_URL = f"https://www.dlsite.com/maniax/new/=/date/{TODAY_DATE_STR}/cdate/{CURRENT_MONTH_STR}/show_layout/2"
+
     headless_mode = '--head' not in sys.argv
     
-    print(f"**実行日付**: {TODAY_DATE_STR}")
-    target_url = HOME_URL
-    
     # 非同期関数を実行し、HTMLデータを取得
-    html_data = asyncio.run(scrape_dlsite_new_products(target_url, headless_mode))
+    html_data = asyncio.run(scrape_dlsite_new_products(HOME_URL, TODAY_DATE_STR, headless_mode))
     
     if html_data:
-        # HTMLデータをファイルに書き出す (デバッグ用)
-        try:
-            with open(OUTPUT_FILENAME, "w", encoding="utf-8") as f:
-                f.write(html_data)
-            # HTMLの長さやタイトルはPlaywrightパートで出力済みのため省略
-        except Exception as file_error:
-             print(f"--- ⚠️ ファイル書き込みエラー: {file_error} ---")
-
         # データのパース（抽出）を実行
-        extracted_products = parse_html_for_products(html_data)
+        extracted_products = parse_html_for_products(html_data, MAX_ITEMS_TO_SCRAPE)
         
-        # 抽出結果の表示
-        print("\n--- 抽出された作品データ（上位5件） ---")
+        # 抽出結果の表示とMarkdown生成
+        print("\n--- 抽出された作品データとMarkdown生成 ---")
         if extracted_products:
-            for i, product in enumerate(extracted_products[:5]):
-                print(f"[{i+1}] タイトル: **{product['title']}**")
-                print(f"    URL: {product['url']}")
-            if len(extracted_products) > 5:
-                print(f"  ...他 {len(extracted_products) - 5}件")
+            # Markdown出力ディレクトリの準備
+            output_dir = "content/dlsite_new_releases"
+            os.makedirs(output_dir, exist_ok=True)
+
+            for product in extracted_products:
+                # 抽出結果の表示
+                print(f"  タイトル: **{product['title']}** (ID: {product['product_id']})")
+                
+                # Markdown生成
+                markdown_content = create_hugo_markdown(product, now_tokyo)
+                
+                # ファイル名の決定: RJxxxxx.md 形式
+                filename = os.path.join(output_dir, f"{product['product_id']}.md")
+                
+                try:
+                    with open(filename, "w", encoding="utf-8") as f:
+                        f.write(markdown_content)
+                    print(f"  ✅ Markdownファイルを生成しました: {filename}")
+                except Exception as file_error:
+                    print(f"  --- ⚠️ ファイル書き込みエラー: {file_error} ---")
         else:
              print("抽出できる作品はありませんでした。")
             
         print("--------------------------------------")
-
-    else:
-        print("データ取得に失敗したため、処理を中断します。")
 
 
 if __name__ == "__main__":
