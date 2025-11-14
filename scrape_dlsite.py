@@ -71,50 +71,50 @@ def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
 
 
 def create_hugo_markdown(product: Dict[str, Any], date_info: datetime) -> str:
-    """Create Hugo TOML frontmatter + body. Make description TOML-safe."""
-    description_text = product.get('full_description', product.get('description', ''))
-    genres = product.get('genres', [])
-    # Make safe for TOML basic string: remove newlines, escape backslash and double-quote
-    safe_description = description_text.replace('\\', '\\\\').replace('\n', ' ').replace('"', '\\"')
+    """
+    抽出したデータからHugo形式のMarkdownファイルを生成します。
+    (description削除、image -> imagesリスト形式に変更、DLsiteリンク削除)
+    """
+    description_text = product.get('full_description', product['description'])
+    genres_list = product.get('genres', [])
 
-    # Fix tags field to be a valid TOML array
-    all_tags = ["DLsite", "CG・イラスト"] + genres
+    # tagsをTOML互換の配列文字列として生成
+    all_tags = ["DLsite"] + genres_list 
     tags_toml_array = ", ".join(f'"{tag}"' for tag in all_tags)
 
-    front = f'''+++
-title = "{product.get('title','') }"
+    # image_urlをリスト形式で準備
+    main_image_url = product.get('image_url', 'no_image')
+
+    # Front Matterから description を削除
+    markdown_content = f"""+++
+title = "{product['title']}"
 date = "{date_info.isoformat()}"
-description = "{safe_description[:150]}..."
-product_id = "{product.get('product_id','')}"
-author = "{product.get('author','')}"
-dlsite_url = "{product.get('url','')}"
+product_id = "{product['product_id']}"
+author = "{product['author']}"
+dlsite_url = "{product['url']}"
 tags = [{tags_toml_array}]
 categories = ["new_releases"]
-image = "{product.get('image_url','no_image')}"
+images = ["{main_image_url}"]  # ★ 'image' を 'images' リスト形式に変更
 +++
 
-'''
-    body = f"""![メイン画像]({product.get('image_url','no_image')})
+![メイン画像]({main_image_url})
 
-## {product.get('title','')}
+## {product['title']}
 
 {description_text}
 
 ---
-
 """
-    # ★★★ サブ画像の追加ロジック ★★★
+    # サブ画像の追加ロジック (変更なし)
     if product.get('sub_images'):
-        body += "\n## サンプル画像\n"
+        markdown_content += "\n## サンプル画像\n"
         for idx, sub_img_url in enumerate(product['sub_images']):
-            # 全画像を本文に挿入（Markdown形式）
-            body += f"![サンプル {idx+1}]({sub_img_url})\n\n"
+            markdown_content += f"![サンプル {idx+1}]({sub_img_url})\n\n"
             
-    body += f"""
-[DLsiteで見る]({product.get('url','')})
-
-"""
-    return front + body
+    # ★ リンクボタンの削除 ★
+    # markdown_content += f"""\n[DLsiteで見る]({product['url']})""" 
+    
+    return markdown_content
 
 
 async def scrape_dlsite_new_products(target_url: str, today_date_str: str, headless_mode: bool = True) -> str | None:

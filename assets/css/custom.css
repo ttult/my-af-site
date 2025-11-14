@@ -160,3 +160,71 @@ body.light, :root.light {
     background: var(--entry);
     border-color: rgba(0,0,0,0.06);
 }
+
+/* 購入ボタンのスタイル */
+.purchase-button-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.purchase-button {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #ff5722;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.purchase-button:hover {
+    background-color: #e64a19;
+    transform: translateY(-2px);
+}
+
+/* スクロール追従型ボタン */
+.purchase-button-floating {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 商品情報カードのスタイル */
+.product-meta-card {
+    background-color: var(--entry);
+    border: 1px solid var(--secondary);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-meta-card p {
+    margin: 8px 0;
+    font-size: 1rem;
+    color: var(--primary);
+}
+
+/* 目次のスタイル */
+.toc-container {
+    background-color: var(--entry);
+    border: 1px solid var(--secondary);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toc-container a {
+    color: var(--link);
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.toc-container a:hover {
+    text-decoration: underline;
+}
