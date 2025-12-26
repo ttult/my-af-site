@@ -1,37 +1,19 @@
-// .devcontainer/devcontainer.json の内容
 {
   "name": "Ultimate ROOM Hugo Site",
-  // ベースイメージとして、Go言語とPythonを含むユニバーサルなイメージを使用
-  "image": "mcr.microsoft.com/devcontainers/universal:latest", 
-  
-  // コンテナ作成後に実行するコマンド
-  "postCreateCommand": [
-    // 1. Hugo Extended版の最新版をインストール（v0.120.4は例。適宜最新版に更新してください）
-    "wget -q https://github.com/gohugoio/hugo/releases/download/v0.120.4/hugo_extended_0.120.4_Linux-64bit.tar.gz",
-    "tar -xzf hugo_extended_0.120.4_Linux-64bit.tar.gz",
-    "mv hugo /usr/local/bin/",
-    "rm hugo_extended_0.120.4_Linux-64bit.tar.gz",
-    
-    // 2. Git Submodule (テーマ) の初期化と更新
-    "git submodule update --init --recursive",
-    
-    // 3. Pythonの依存関係のインストール (requirements.txtを利用)
-    "pip install -r requirements.txt",
 
-    // 4. playwright関連のインストール
-    "playwright install",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
 
-    // 🚨 5. ブラウザ実行に必要なOSの依存関係をインストール (今回のエラー対策)
-    "playwright install-deps"
-  ],
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers/features/go:1": {}
+  },
 
-  // VS Code拡張機能の推奨
   "customizations": {
     "vscode": {
       "extensions": [
-        "golang.go",         // Go言語
-        "vscode-icons-team.vscode-icons",
-        "ms-python.python"  // Python
+        "ms-python.python",
+        "golang.go",
+        "vscode-icons-team.vscode-icons"
       ]
     }
   }
