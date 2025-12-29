@@ -1,65 +1,32 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+set -e
 
-HUGO_VERSION="0.120.4"
-HUGO_BIN="/usr/local/bin/hugo"
+HUGO_VERSION="0.146.0"
+TMP_DIR="$(mktemp -d)"
 
-echo "======================================"
-echo " Ultimate ROOM - build.sh"
-echo "======================================"
+echo "=== Hugo install (v${HUGO_VERSION} extended) ==="
 
-#######################################
-# Hugo install (clean & safe)
-#######################################
-echo ">>> Checking Hugo..."
+if ! command -v hugo >/dev/null; then
+  echo "Installing Hugo..."
+  wget -q -O "${TMP_DIR}/hugo.tar.gz" \
+    "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
 
-if ! command -v hugo >/dev/null 2>&1; then
-  echo ">>> Installing Hugo Extended v${HUGO_VERSION}"
-
-  TMP_DIR="$(mktemp -d)"
-  trap 'rm -rf "$TMP_DIR"' EXIT
-
-  curl -sL \
-    "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz" \
-    -o "${TMP_DIR}/hugo.tar.gz"
-
-  tar -xzf "${TMP_DIR}/hugo.tar.gz" -C "${TMP_DIR}" hugo
-  sudo mv "${TMP_DIR}/hugo" "${HUGO_BIN}"
-  sudo chmod +x "${HUGO_BIN}"
-
-  echo ">>> Hugo installed at ${HUGO_BIN}"
+  tar -xzf "${TMP_DIR}/hugo.tar.gz" -C "${TMP_DIR}"
+  sudo mv "${TMP_DIR}/hugo" /usr/local/bin/hugo
 else
-  echo ">>> Hugo already installed: $(hugo version)"
+  echo "Hugo already installed:"
+  hugo version
 fi
 
-#######################################
-# Git submodule
-#######################################
-echo ">>> Updating git submodules..."
+rm -rf "${TMP_DIR}"
+
+echo "=== Git submodule update (PaperMod) ==="
 git submodule update --init --recursive
 
-#######################################
-# Python dependencies
-#######################################
-if [ -f "requirements.txt" ]; then
-  echo ">>> Installing Python dependencies..."
-  python -m pip install --upgrade pip
-  pip install -r requirements.txt
-else
-  echo ">>> requirements.txt not found, skipping Python deps"
-fi
+echo "=== Python dependencies ==="
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
 
-#######################################
-# Playwright
-#######################################
-if command -v playwright >/dev/null 2>&1; then
-  echo ">>> Installing Playwright browsers..."
-  playwright install
-  playwright install-deps
-else
-  echo ">>> Playwright not found, skipping"
-fi
-
-echo "======================================"
-echo " Build completed successfully ✔"
-echo "======================================"
+echo "=== Playwright ==="
+playwright install
+playwright install-deps
