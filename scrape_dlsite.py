@@ -24,18 +24,27 @@ ILLUST_TAB_SELECTOR_CSS = '.option_tab a:has-text("CG・イラスト")'
 
 
 async def generate_llm_content(product: Dict[str, Any]) -> str:
-    """Gemini APIで『管理人の感想』を生成。失敗時は空文字を返す。"""
     api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
     if not api_key:
+        print("  > Skip LLM: No API Key (Check env!)")
         return ""
 
-    # 調査済みリストに基づいた安定モデル
     model_id = "models/gemini-2.5-flash-lite"
     
     try:
         client = genai.Client(api_key=api_key)
-        prompt = f"""以下の作品の内容を読み、期待できるポイントや魅力を「管理人の感想」として150文字程度でポジティブに書いてください。
-タイトル、内容などは含めず、純粋な感想文だけを出力してください。
+        
+        # 【直感・本音系】のプロンプト
+        prompt = f"""あなたは同人作品レビュー歴10年の個人ブロガーです。
+以下の作品情報を読み、その魅力を「一人のファンとしての本音」で150文字程度で語ってください。
+
+### 執筆スタイル:
+- 敬語は使わず、独り言のような「直感系」で（例：〜なのが最高。、〜は反則すぎる、〇〇好きには刺さる。等）。
+- 「です・ます」などの丁寧語や、AI特有の「〜ですね」「〜でしょう」は排除してください。
+- 冒頭の「管理人の感想：」などの挨拶は一切不要。
+- 改行を多用して、スマホで読みやすいリズムにしてください。
+- 購買意欲をそそるように、その作品の「エグいポイント」や「刺さるシチュエーション」に一点集中して褒めてください。
+
 【タイトル】: {product['title']}
 【内容】: {product.get('full_description', '')[:1200]}"""
 
@@ -46,7 +55,15 @@ async def generate_llm_content(product: Dict[str, Any]) -> str:
                     model=model_id,
                     contents=prompt
                 )
-                return response.text if response.text else ""
+                res_text = response.text if response.text else ""
+                
+                # 不要な見出しや記号を徹底削除
+                clean_text = res_text.replace("管理人の感想", "").replace("：", "").replace(":", "").strip()
+                
+                if clean_text:
+                    print(f"  > Generated: {clean_text[:15]}...")
+                return clean_text
+                
             except Exception as e:
                 if "429" in str(e) and attempt == 0:
                     await asyncio.sleep(15)
@@ -55,7 +72,6 @@ async def generate_llm_content(product: Dict[str, Any]) -> str:
     except Exception as e:
         print(f"  > LLM Error: {e}")
         return ""
-
 
 def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
     """DLsiteの一覧ページから商品情報を抽出する関数"""
