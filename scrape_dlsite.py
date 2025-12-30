@@ -1,14 +1,4 @@
 #!/usr/bin/env python3
-"""
-scrape_dlsite.py
-
-Scrapes DLsite new releases and writes Hugo-compatible Markdown files
-into `content/posts/dlsite/YYYY/MM`.
-
-This module keeps strings safe for TOML frontmatter by removing newlines
-and escaping backslashes and double quotes in the `description` field.
-"""
-
 import asyncio
 import time
 import os
@@ -21,6 +11,9 @@ import pytz
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
+# 2025年最新SDKのインポート
+from google import genai
+
 # Configuration
 ACCESS_DELAY = 3
 MAX_ITEMS_TO_SCRAPE = 3
@@ -32,8 +25,31 @@ AGE_CONFIRM_SELECTOR_CSS = '.btn_yes.btn-approval a'
 ILLUST_TAB_SELECTOR_CSS = '.option_tab a:has-text("CG・イラスト")'
 
 
+async def generate_llm_content(product: Dict[str, Any]) -> str:
+    """Gemini APIを使用して紹介文を生成。失敗時は元の説明を返す。"""
+    api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
+    if not api_key:
+        return product.get('full_description', product['description'])
+
+    try:
+        client = genai.Client(api_key=api_key)
+        prompt = f"""以下の作品の魅力を150文字程度の紹介文と、3つの箇条書きポイントでまとめてください。
+【タイトル】: {product['title']}
+【内容】: {product.get('full_description', product['description'])[:1000]}"""
+
+        # 同期実行を非同期スレッドで実行
+        response = await asyncio.to_thread(
+            client.models.generate_content,
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
+        return response.text
+    except Exception as e:
+        print(f"  > LLM Error: {e}")
+        return product.get('full_description', product['description'])
+
+
 def get_existing_ids(output_dir: str) -> set:
-    """Return set of existing RJ IDs under output_dir (recursive)."""
     if not os.path.exists(output_dir):
         return set()
     existing = set()
@@ -51,7 +67,6 @@ def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
         href = a.get('href')
         full = f"https://www.dlsite.com{href}" if href and href.startswith('/') else href
         pid = full.split('/')[-1].replace('.html', '').replace('.txt', '')
-        # author and short description best-effort
         dt = a.find_parent('dt')
         author = '不明'
         if dt:
@@ -70,22 +85,13 @@ def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
     return items
 
 
-def create_hugo_markdown(product: Dict[str, Any], date_info: datetime) -> str:
-    """
-    抽出したデータからHugo形式のMarkdownファイルを生成します。
-    (description削除、image -> imagesリスト形式に変更、DLsiteリンク削除)
-    """
-    description_text = product.get('full_description', product['description'])
+def create_hugo_markdown(product: Dict[str, Any], content_text: str, date_info: datetime) -> str:
+    """Markdown生成ロジック。引数にLLM生成後のテキストを渡すよう変更。"""
     genres_list = product.get('genres', [])
-
-    # tagsをTOML互換の配列文字列として生成
     all_tags = ["DLsite"] + genres_list 
     tags_toml_array = ", ".join(f'"{tag}"' for tag in all_tags)
-
-    # image_urlをリスト形式で準備
     main_image_url = product.get('image_url', 'no_image')
 
-    # Front Matterから description を削除
     markdown_content = f"""+++
 title = "{product['title']}"
 date = "{date_info.isoformat()}"
@@ -94,26 +100,22 @@ author = "{product['author']}"
 dlsite_url = "{product['url']}"
 tags = [{tags_toml_array}]
 categories = ["new_releases"]
-images = ["{main_image_url}"]  # ★ 'image' を 'images' リスト形式に変更
+images = ["{main_image_url}"]
 +++
 
 ![メイン画像]({main_image_url})
 
 ## {product['title']}
 
-{description_text}
+{content_text}
 
 ---
 """
-    # サブ画像の追加ロジック (変更なし)
     if product.get('sub_images'):
         markdown_content += "\n## サンプル画像\n"
         for idx, sub_img_url in enumerate(product['sub_images']):
             markdown_content += f"![サンプル {idx+1}]({sub_img_url})\n\n"
             
-    # ★ リンクボタンの削除 ★
-    # markdown_content += f"""\n[DLsiteで見る]({product['url']})""" 
-    
     return markdown_content
 
 
@@ -123,28 +125,22 @@ async def scrape_dlsite_new_products(target_url: str, today_date_str: str, headl
         page = await browser.new_page()
         try:
             await page.goto(target_url, wait_until='domcontentloaded', timeout=90000)
-            # language popup
             try:
                 await page.wait_for_selector(LANGUAGE_SELECTOR_XPATH, timeout=10000)
                 await page.click(LANGUAGE_SELECTOR_XPATH)
                 await page.wait_for_load_state('domcontentloaded', timeout=15000)
-            except Exception:
-                pass
-            # age confirm
+            except: pass
             try:
                 await page.wait_for_selector(AGE_CONFIRM_SELECTOR_CSS, timeout=10000)
                 await page.click(AGE_CONFIRM_SELECTOR_CSS)
                 await page.wait_for_load_state('domcontentloaded', timeout=15000)
-            except Exception:
-                pass
-            # category
+            except: pass
             try:
                 ill = page.locator(ILLUST_TAB_SELECTOR_CSS)
                 await ill.wait_for(state='visible', timeout=10000)
                 await ill.click(timeout=10000)
                 await page.wait_for_load_state('domcontentloaded', timeout=30000)
-            except Exception:
-                pass
+            except: pass
             time.sleep(ACCESS_DELAY)
             html = await page.content()
             await browser.close()
@@ -160,23 +156,15 @@ async def scrape_detail_page(page, product: Dict[str, Any]) -> Dict[str, Any]:
         await page.wait_for_load_state('domcontentloaded', timeout=15000)
         soup = BeautifulSoup(await page.content(), 'html.parser')
 
-        # Full description extraction with improved formatting
         full_description_elem = soup.select_one('.work_parts_container .work_parts_area')
         if full_description_elem:
-            # Replace <br> tags with double newlines for Markdown paragraph breaks
             for br in full_description_elem.find_all('br'):
                 br.replace_with('\n\n')
-
-            # Add double newlines before and after <p> tags for better paragraph separation
             for p in full_description_elem.find_all('p'):
                 p.insert_before('\n\n')
                 p.insert_after('\n\n')
-
-            # Extract text and clean up excessive newlines
             raw_text = full_description_elem.get_text('\n', strip=True)
-            product['full_description'] = '\n\n'.join(
-                line.strip() for line in raw_text.splitlines() if line.strip()
-            )
+            product['full_description'] = '\n\n'.join(line.strip() for line in raw_text.splitlines() if line.strip())
         else:
             product['full_description'] = product['description']
 
@@ -186,128 +174,71 @@ async def scrape_detail_page(page, product: Dict[str, Any]) -> Dict[str, Any]:
             product['image_url'] = f"https:{meta_img['content']}"
         else:
             img = soup.select_one('.work_slider img.swiper-lazy-loaded')
-            if img and img.get('srcset'):
-                product['image_url'] = img['srcset'].split(',')[0].strip().split(' ')[0]
-            elif img and img.get('src'):
-                product['image_url'] = img['src']
-            else:
-                product['image_url'] = '画像なし'
+            product['image_url'] = img['src'] if img and img.get('src') else '画像なし'
+        
         if product['image_url'].startswith('//'):
             product['image_url'] = 'https:' + product['image_url']
 
-        # Genre extraction
-        genres = []
+        # Genre
         table = soup.find('table', id='work_outline')
-        if table:
-            for th in table.find_all('th'):
-                if 'ジャンル' in th.get_text(strip=True):
-                    td = th.find_next_sibling('td')
-                    if td:
-                        genres = [a.get_text(strip=True) for a in td.select('.main_genre a')]
-                        break
-        product['genres'] = genres
+        product['genres'] = [a.get_text(strip=True) for a in table.select('.main_genre a')] if table else []
 
-        # T4: メイン画像URLとサブ画像リストの抽出開始
-        print("  > T4: メイン画像URLとサブ画像リスト 抽出開始")
-
+        # Sub Images
         product['sub_images'] = []
-
-        # 1. メイン画像 (Front Matter用)
-        main_img_elem = soup.select_one('.slider_items .slider_item.active picture img')
-        main_img_meta = soup.select_one('meta[itemprop="image"]')
-
-        if main_img_meta and 'content' in main_img_meta.attrs:
-            product['image_url'] = f"https:{main_img_meta['content']}" 
-        elif main_img_elem:
-            # activeなliタグのsrcsetからURLを取得
-            src_set = main_img_elem.get('srcset')
-            if src_set:
-                # srcsetの最初のURL（高解像度）を取得
-                product['image_url'] = src_set.split(',')[0].strip().split(' ')[0]
-            else:
-                product['image_url'] = main_img_elem.get('src', '画像なし')
-        else:
-            product['image_url'] = "画像なし"
-
-        if product['image_url'].startswith('//'):
-            product['image_url'] = 'https:' + product['image_url']
-            
-        # 2. サブ画像リスト (本文用)
-        slider_image_elements = soup.select('.slider_items li picture img')
+        slider_imgs = soup.select('.slider_items li picture img')
         sub_image_urls = set()
-
-        for img_elem in slider_image_elements:
-            src_set = img_elem.get('srcset')
-            if src_set:
-                sub_img_url = src_set.split(',')[0].strip().split(' ')[0]
-            else:
-                sub_img_url = img_elem.get('src') or img_elem.get('data-src')
-
-            if sub_img_url and sub_img_url.startswith('//'):
-                sub_img_url = f"https:{sub_img_url}"
-
-            # メイン画像と重複せず、かつ有効なURLである場合のみ追加
-            if sub_img_url and sub_img_url != product['image_url']:
-                sub_image_urls.add(sub_img_url)
-
-        # セットからリストに戻し、最大10枚に制限
+        for img_elem in slider_imgs:
+            src = img_elem.get('srcset', '').split(',')[0].strip().split(' ')[0] or img_elem.get('src')
+            if src:
+                if src.startswith('//'): src = 'https:' + src
+                if src != product['image_url']: sub_image_urls.add(src)
         product['sub_images'] = list(sub_image_urls)[:10]
 
         time.sleep(ACCESS_DELAY)
         return product
-    except Exception:
+    except:
         return product
 
 
 async def main_async(headless_mode: bool):
     tz = pytz.timezone('Asia/Tokyo')
     now = datetime.now(tz)
-    today = now.strftime('%Y-%m-%d')
-    month = now.strftime('%Y-%m')
-    ym_path = now.strftime('%Y/%m')
-    output_dir = os.path.join(OUTPUT_BASE_DIR, ym_path)
+    today, month = now.strftime('%Y-%m-%d'), now.strftime('%Y-%m')
+    output_dir = os.path.join(OUTPUT_BASE_DIR, now.strftime('%Y/%m'))
     os.makedirs(output_dir, exist_ok=True)
+    
+    # オリジナルのURL形式を維持
     home_url = f"https://www.dlsite.com/maniax/new/=/date/{today}/cdate/{month}/show_layout/2"
+    
     html = await scrape_dlsite_new_products(home_url, today, headless_mode)
-    if not html:
-        print('failed to fetch list')
-        return
+    if not html: return
 
-    # Extracted products are directly processed without duplicate checks
     products_to_process = parse_html_for_ids(html, MAX_ITEMS_TO_SCRAPE)
-
-    if not products_to_process:
-        print("抽出できる作品はありませんでした。処理を終了します。")
-        return
-
-    print(f"\n--- Stage 2: 処理対象作品 {len(products_to_process)}件の詳細データを取得中 (既存ファイルは上書き) ---")
+    if not products_to_process: return
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=headless_mode, timeout=90000)
+        browser = await p.chromium.launch(headless=headless_mode)
         page = await browser.new_page()
 
         for product in products_to_process:
+            # 詳細取得
             product = await scrape_detail_page(page, product)
-            md = create_hugo_markdown(product, now)
+            # ★ Geminiでコンテンツ生成 ★
+            final_content = await generate_llm_content(product)
+            # Markdown生成
+            md = create_hugo_markdown(product, final_content, now)
+            
             fname = os.path.join(output_dir, f"{product['product_id']}.md")
-            try:
-                with open(fname, 'w', encoding='utf-8') as f:
-                    f.write(md)
-                print('wrote', fname)
-            except Exception as e:
-                print('write error', e)
+            with open(fname, 'w', encoding='utf-8') as f:
+                f.write(md)
+            print('wrote', fname)
+            
         await browser.close()
-
 
 def main():
     headless_mode = '--head' not in sys.argv
-    try:
-        if os.name == 'nt':
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    except AttributeError:
-        pass
+    if os.name == 'nt': asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main_async(headless_mode))
-
 
 if __name__ == '__main__':
     main()
