@@ -10,8 +10,6 @@ from typing import Dict, Any, List
 import pytz
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
-
-# 2025年最新SDK
 from google import genai
 
 # Configuration
@@ -26,25 +24,21 @@ ILLUST_TAB_SELECTOR_CSS = '.option_tab a:has-text("CG・イラスト")'
 
 
 async def generate_llm_content(product: Dict[str, Any]) -> str:
-    """
-    Gemini APIを使用して紹介文を生成。
-    調査結果に基づき 'models/' プレフィックスを付与し、
-    制限の緩い 2.5-flash-lite を使用します。
-    """
+    """Gemini APIで『管理人の感想』を生成。失敗時は空文字を返す。"""
     api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
     if not api_key:
-        return product.get('full_description', product['description'])
+        return ""
 
-    # 調査済みリストから選択 (404/429対策)
+    # 調査済みリストに基づいた安定モデル
     model_id = "models/gemini-2.5-flash-lite"
     
     try:
         client = genai.Client(api_key=api_key)
-        prompt = f"""以下の作品の魅力を150文字程度の紹介文と、3つの箇条書きポイントでまとめてください。
+        prompt = f"""以下の作品の内容を読み、期待できるポイントや魅力を「管理人の感想」として150文字程度でポジティブに書いてください。
+タイトル、内容などは含めず、純粋な感想文だけを出力してください。
 【タイトル】: {product['title']}
-【内容】: {product.get('full_description', product['description'])[:1200]}"""
+【内容】: {product.get('full_description', '')[:1200]}"""
 
-        # 最大2回までリトライ (429対策)
         for attempt in range(2):
             try:
                 response = await asyncio.to_thread(
@@ -52,30 +46,19 @@ async def generate_llm_content(product: Dict[str, Any]) -> str:
                     model=model_id,
                     contents=prompt
                 )
-                return response.text
+                return response.text if response.text else ""
             except Exception as e:
                 if "429" in str(e) and attempt == 0:
-                    print(f"  > Rate limit hit. Waiting 15s...")
                     await asyncio.sleep(15)
                     continue
                 raise e
-
     except Exception as e:
         print(f"  > LLM Error: {e}")
-        # エラー時はフォールバックとして元の説明を返す
-        return product.get('full_description', product['description'])
-
-
-def get_existing_ids(output_dir: str) -> set:
-    if not os.path.exists(output_dir):
-        return set()
-    existing = set()
-    for p in glob.glob(os.path.join(output_dir, "**", "RJ*.md"), recursive=True):
-        existing.add(os.path.splitext(os.path.basename(p))[0])
-    return existing
+        return ""
 
 
 def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
+    """DLsiteの一覧ページから商品情報を抽出する関数"""
     soup = BeautifulSoup(html, 'html.parser')
     items = []
     links = soup.select('div.n_worklist_item .work_name a[href*="/product_id/"]')
@@ -84,6 +67,7 @@ def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
         href = a.get('href')
         full = f"https://www.dlsite.com{href}" if href and href.startswith('/') else href
         pid = full.split('/')[-1].replace('.html', '').replace('.txt', '')
+        
         dt = a.find_parent('dt')
         author = '不明'
         if dt:
@@ -92,21 +76,31 @@ def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
                 al = maker.select_one('a')
                 if al:
                     author = al.get_text(strip=True)
+        
         desc = '詳細な説明なし'
         if dt:
             desc_el = dt.find_next_sibling('dd', class_='work_text')
             if desc_el:
                 desc = desc_el.get_text(strip=True).replace('\n', ' ')
 
-        items.append({'product_id': pid, 'title': title, 'url': full, 'author': author, 'description': desc})
+        items.append({
+            'product_id': pid, 
+            'title': title, 
+            'url': full, 
+            'author': author, 
+            'description': desc
+        })
     return items
 
 
-def create_hugo_markdown(product: Dict[str, Any], content_text: str, date_info: datetime) -> str:
+def create_hugo_markdown(product: Dict[str, Any], llm_review: str, date_info: datetime) -> str:
+    """Markdown生成。説明文＋管理人の感想の構成。"""
     genres_list = product.get('genres', [])
     all_tags = ["DLsite"] + genres_list 
     tags_toml_array = ", ".join(f'"{tag}"' for tag in all_tags)
     main_image_url = product.get('image_url', 'no_image')
+    
+    original_desc = product.get('full_description', '詳細な説明はありません。')
 
     markdown_content = f"""+++
 title = "{product['title']}"
@@ -123,10 +117,18 @@ images = ["{main_image_url}"]
 
 ## {product['title']}
 
-{content_text}
+{original_desc}
 
 ---
 """
+    if llm_review and llm_review.strip():
+        markdown_content += f"""
+## 管理人の感想
+{llm_review.strip()}
+
+---
+"""
+
     if product.get('sub_images'):
         markdown_content += "\n## サンプル画像\n"
         for idx, sub_img_url in enumerate(product['sub_images']):
@@ -137,23 +139,24 @@ images = ["{main_image_url}"]
 
 async def scrape_dlsite_new_products(target_url: str, today_date_str: str, headless_mode: bool = True) -> str | None:
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=headless_mode, args=['--no-sandbox','--disable-blink-features=AutomationControlled'], timeout=90000)
+        browser = await p.chromium.launch(
+            headless=headless_mode, 
+            args=['--no-sandbox','--disable-blink-features=AutomationControlled'], 
+            timeout=90000
+        )
         page = await browser.new_page()
         try:
             await page.goto(target_url, wait_until='domcontentloaded', timeout=90000)
-            # language popup
             try:
                 await page.wait_for_selector(LANGUAGE_SELECTOR_XPATH, timeout=10000)
                 await page.click(LANGUAGE_SELECTOR_XPATH)
                 await page.wait_for_load_state('domcontentloaded', timeout=15000)
             except: pass
-            # age confirm
             try:
                 await page.wait_for_selector(AGE_CONFIRM_SELECTOR_CSS, timeout=10000)
                 await page.click(AGE_CONFIRM_SELECTOR_CSS)
                 await page.wait_for_load_state('domcontentloaded', timeout=15000)
             except: pass
-            # category tab
             try:
                 ill = page.locator(ILLUST_TAB_SELECTOR_CSS)
                 await ill.wait_for(state='visible', timeout=10000)
@@ -187,7 +190,6 @@ async def scrape_detail_page(page, product: Dict[str, Any]) -> Dict[str, Any]:
         else:
             product['full_description'] = product['description']
 
-        # Image extraction
         meta_img = soup.select_one('meta[itemprop="image"]')
         if meta_img and meta_img.get('content'):
             product['image_url'] = f"https:{meta_img['content']}"
@@ -198,11 +200,9 @@ async def scrape_detail_page(page, product: Dict[str, Any]) -> Dict[str, Any]:
         if product['image_url'].startswith('//'):
             product['image_url'] = 'https:' + product['image_url']
 
-        # Genre
         table = soup.find('table', id='work_outline')
         product['genres'] = [a.get_text(strip=True) for a in table.select('.main_genre a')] if table else []
 
-        # Sub Images
         product['sub_images'] = []
         slider_imgs = soup.select('.slider_items li picture img')
         sub_image_urls = set()
@@ -229,14 +229,9 @@ async def main_async(headless_mode: bool):
     home_url = f"https://www.dlsite.com/maniax/new/=/date/{today}/cdate/{month}/show_layout/2"
     
     html = await scrape_dlsite_new_products(home_url, today, headless_mode)
-    if not html:
-        print("failed to fetch list")
-        return
+    if not html: return
 
     products_to_process = parse_html_for_ids(html, MAX_ITEMS_TO_SCRAPE)
-    if not products_to_process:
-        print("No products found")
-        return
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=headless_mode)
@@ -244,12 +239,9 @@ async def main_async(headless_mode: bool):
 
         for product in products_to_process:
             print(f"Processing {product['product_id']}...")
-            # 詳細取得
             product = await scrape_detail_page(page, product)
-            # ★ Geminiでコンテンツ生成 ★
-            final_content = await generate_llm_content(product)
-            # Markdown生成
-            md = create_hugo_markdown(product, final_content, now)
+            review_text = await generate_llm_content(product)
+            md = create_hugo_markdown(product, review_text, now)
             
             fname = os.path.join(output_dir, f"{product['product_id']}.md")
             with open(fname, 'w', encoding='utf-8') as f:
