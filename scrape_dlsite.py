@@ -11,7 +11,7 @@ import pytz
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
-# 2025年最新SDKのインポート
+# 2025年最新SDK
 from google import genai
 
 # Configuration
@@ -26,26 +26,43 @@ ILLUST_TAB_SELECTOR_CSS = '.option_tab a:has-text("CG・イラスト")'
 
 
 async def generate_llm_content(product: Dict[str, Any]) -> str:
-    """Gemini APIを使用して紹介文を生成。失敗時は元の説明を返す。"""
+    """
+    Gemini APIを使用して紹介文を生成。
+    調査結果に基づき 'models/' プレフィックスを付与し、
+    制限の緩い 2.5-flash-lite を使用します。
+    """
     api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
     if not api_key:
         return product.get('full_description', product['description'])
 
+    # 調査済みリストから選択 (404/429対策)
+    model_id = "models/gemini-2.5-flash-lite"
+    
     try:
         client = genai.Client(api_key=api_key)
         prompt = f"""以下の作品の魅力を150文字程度の紹介文と、3つの箇条書きポイントでまとめてください。
 【タイトル】: {product['title']}
-【内容】: {product.get('full_description', product['description'])[:1000]}"""
+【内容】: {product.get('full_description', product['description'])[:1200]}"""
 
-        # 同期実行を非同期スレッドで実行
-        response = await asyncio.to_thread(
-            client.models.generate_content,
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
-        return response.text
+        # 最大2回までリトライ (429対策)
+        for attempt in range(2):
+            try:
+                response = await asyncio.to_thread(
+                    client.models.generate_content,
+                    model=model_id,
+                    contents=prompt
+                )
+                return response.text
+            except Exception as e:
+                if "429" in str(e) and attempt == 0:
+                    print(f"  > Rate limit hit. Waiting 15s...")
+                    await asyncio.sleep(15)
+                    continue
+                raise e
+
     except Exception as e:
         print(f"  > LLM Error: {e}")
+        # エラー時はフォールバックとして元の説明を返す
         return product.get('full_description', product['description'])
 
 
@@ -86,7 +103,6 @@ def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
 
 
 def create_hugo_markdown(product: Dict[str, Any], content_text: str, date_info: datetime) -> str:
-    """Markdown生成ロジック。引数にLLM生成後のテキストを渡すよう変更。"""
     genres_list = product.get('genres', [])
     all_tags = ["DLsite"] + genres_list 
     tags_toml_array = ", ".join(f'"{tag}"' for tag in all_tags)
@@ -125,16 +141,19 @@ async def scrape_dlsite_new_products(target_url: str, today_date_str: str, headl
         page = await browser.new_page()
         try:
             await page.goto(target_url, wait_until='domcontentloaded', timeout=90000)
+            # language popup
             try:
                 await page.wait_for_selector(LANGUAGE_SELECTOR_XPATH, timeout=10000)
                 await page.click(LANGUAGE_SELECTOR_XPATH)
                 await page.wait_for_load_state('domcontentloaded', timeout=15000)
             except: pass
+            # age confirm
             try:
                 await page.wait_for_selector(AGE_CONFIRM_SELECTOR_CSS, timeout=10000)
                 await page.click(AGE_CONFIRM_SELECTOR_CSS)
                 await page.wait_for_load_state('domcontentloaded', timeout=15000)
             except: pass
+            # category tab
             try:
                 ill = page.locator(ILLUST_TAB_SELECTOR_CSS)
                 await ill.wait_for(state='visible', timeout=10000)
@@ -207,20 +226,24 @@ async def main_async(headless_mode: bool):
     output_dir = os.path.join(OUTPUT_BASE_DIR, now.strftime('%Y/%m'))
     os.makedirs(output_dir, exist_ok=True)
     
-    # オリジナルのURL形式を維持
     home_url = f"https://www.dlsite.com/maniax/new/=/date/{today}/cdate/{month}/show_layout/2"
     
     html = await scrape_dlsite_new_products(home_url, today, headless_mode)
-    if not html: return
+    if not html:
+        print("failed to fetch list")
+        return
 
     products_to_process = parse_html_for_ids(html, MAX_ITEMS_TO_SCRAPE)
-    if not products_to_process: return
+    if not products_to_process:
+        print("No products found")
+        return
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=headless_mode)
         page = await browser.new_page()
 
         for product in products_to_process:
+            print(f"Processing {product['product_id']}...")
             # 詳細取得
             product = await scrape_detail_page(page, product)
             # ★ Geminiでコンテンツ生成 ★
