@@ -228,3 +228,47 @@ body.light, :root.light {
 .toc-container a:hover {
     text-decoration: underline;
 }
+
+/* 管理人の感想 — モダンなレビューボックス */
+.review-box {
+    margin: 20px 0;
+}
+.review-box-inner {
+    background: linear-gradient(180deg, rgba(255,87,34,0.05), transparent);
+    border: 1px solid rgba(255,87,34,0.12);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+.review-badge {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--primary);
+    background: rgba(0,0,0,0.06);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    width: fit-content;
+}
+.review-body {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--primary);
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+.review-cta {
+    margin-top: 4px;
+    display: flex;
+    gap: 8px;
+}
+.review-cta .affiliate-button {
+    background-color: #ff5722;
+    color: #fff !important;
+    padding: 10px 16px;
+    border-radius: 8px;
+}
+.review-body p { margin: 0 0 0.5rem 0; }

@@ -1,0 +1,15 @@
+{{- /* review_box.html: モダンで直接的なレビュー表示 */ -}}
+{{- $r := .Params.review -}}
+{{- if $r }}
+<aside class="review-box">
+  <div class="review-box-inner">
+    <div class="review-badge">管理人の感想</div>
+    <div class="review-body">{{ $r | safeHTML }}</div>
+    {{- if .Params.dlsite_url }}
+    <div class="review-cta">
+      <a href="{{ .Params.dlsite_url }}" class="affiliate-button">今すぐ詳細を見る</a>
+    </div>
+    {{- end }}
+  </div>
+</aside>
+{{- end }}

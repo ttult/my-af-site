@@ -118,6 +118,12 @@ def create_hugo_markdown(product: Dict[str, Any], llm_review: str, date_info: da
     
     original_desc = product.get('full_description', '詳細な説明はありません。')
 
+    # Front matter: include review as a TOML multiline string when present
+    review_field = ""
+    if llm_review and llm_review.strip():
+        safe_review = llm_review.strip().replace('"""', '\\"\\"\\"')
+        review_field = f"\nreview = \"\"\"{safe_review}\"\"\"\n"
+
     markdown_content = f"""+++
 title = "{product['title']}"
 date = "{date_info.isoformat()}"
@@ -126,21 +132,13 @@ author = "{product['author']}"
 dlsite_url = "{product['url']}"
 tags = [{tags_toml_array}]
 categories = ["new_releases"]
-images = ["{main_image_url}"]
-+++
+images = ["{main_image_url}"]{review_field}+++
 
 ![メイン画像]({main_image_url})
 
 ## {product['title']}
 
 {original_desc}
-
----
-"""
-    if llm_review and llm_review.strip():
-        markdown_content += f"""
-## 管理人の感想
-{llm_review.strip()}
 
 ---
 """

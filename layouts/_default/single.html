@@ -14,11 +14,13 @@
       </span>
       {{- end }}
     </h1>
-    <!-- 商品情報カード -->
+    <!-- 商品情報カード（商品メタがあるページのみ表示） -->
+    {{- if or .Params.dlsite_url .Params.product_id .Params.author }}
     <div class="product-meta-card">
       <p><strong>サークル名:</strong> {{ .Params.author }}</p>
       <p><strong>商品ID:</strong> {{ .Params.product_id }}</p>
     </div>
+    {{- end }}
 
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">
@@ -27,10 +29,17 @@
       {{- end }}
     </ul>
 
-    <!-- 購入ボタン -->
+    {{- /* 管理人の感想（フロントマターの review を使用してモダン表示） */ -}}
+    {{- if .Params.review }}
+      {{- partial "review_box.html" . -}}
+    {{- end }}
+
+    <!-- 購入ボタン（dlsite URL があるページのみ表示） -->
+    {{- if .Params.dlsite_url }}
     <div class="purchase-button-container">
       <a href="{{ .Params.dlsite_url }}" class="purchase-button">{{ .Title }} を購入する</a>
     </div>
+    {{- end }}
 
     {{- if not (.Param "hideMeta") }}
     <div class="post-meta">
@@ -54,10 +63,12 @@
   {{- end }}
 
   <footer class="post-footer">
-        <!-- 購入ボタン -->
+        <!-- 購入ボタン（dlsite URL があるページのみ表示） -->
+    {{- if .Params.dlsite_url }}
     <div class="purchase-button-container">
       <a href="{{ .Params.dlsite_url }}" class="purchase-button">{{ .Title }} を購入する</a>
     </div>
+    {{- end }}
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">
       {{- range ($.GetTerms $tags) }}
