@@ -2,7 +2,7 @@
 title: "プライバシーポリシー・免責事項"
 date: 2026-01-07
 layout: "page"
-url: "/about/"
+url: "/privacy/"
 ---
 
 ### プライバシーポリシー
