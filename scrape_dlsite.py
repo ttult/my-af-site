@@ -112,19 +112,14 @@ def parse_html_for_ids(html: str, max_items: int) -> List[Dict[str, Any]]:
 def create_hugo_markdown(product: Dict[str, Any], llm_review: str, date_info: datetime) -> str:
     """Markdown生成。説明文＋管理人の感想の構成。"""
     genres_list = product.get('genres', [])
-    all_tags = ["DLsite"] + genres_list 
+    all_tags = ["DLsite"] + genres_list
     tags_toml_array = ", ".join(f'"{tag}"' for tag in all_tags)
     main_image_url = product.get('image_url', 'no_image')
-    
+
     original_desc = product.get('full_description', '詳細な説明はありません。')
 
-    # Front matter: include review as a TOML multiline string when present
-    review_field = ""
-    if llm_review and llm_review.strip():
-        safe_review = llm_review.strip().replace('"""', '\\"\\"\\"')
-        review_field = f"\nreview = \"\"\"{safe_review}\"\"\"\n"
-
-    markdown_content = f"""+++
+    # Front matter: do NOT include review to avoid theme header duplication
+    front_matter = f"""+++
 title = "{product['title']}"
 date = "{date_info.isoformat()}"
 product_id = "{product['product_id']}"
@@ -132,23 +127,61 @@ author = "{product['author']}"
 dlsite_url = "{product['url']}"
 tags = [{tags_toml_array}]
 categories = ["new_releases"]
-images = ["{main_image_url}"]{review_field}+++
-
-![メイン画像]({main_image_url})
-
-## {product['title']}
-
-{original_desc}
-
----
+images = ["{main_image_url}"]
++++
 """
 
+    # 本文構築
+    body = f"![メイン画像]({main_image_url})\n\n"
+
+    # 商品情報 (サークル名/商品ID/URL)
+    body += f"**サークル**: {product.get('author', '不明')}  \n"
+    body += f"**商品ID**: {product.get('product_id', '')}  \n"
+    body += f"[DLsite ページへ]({product.get('url')})\n\n"
+
+    # タグ一覧
+    if genres_list:
+        body += "**タグ**: " + ", ".join(genres_list) + "\n\n"
+
+    # 購入ボタン（ショートコードを利用）
+    body += "{{< affiliate_button url=\"" + product.get('url', '') + "\" >}}\n\n"
+
+    # サンプル画像
     if product.get('sub_images'):
-        markdown_content += "\n## サンプル画像\n"
+        body += "## サンプル画像\n\n"
         for idx, sub_img_url in enumerate(product['sub_images']):
-            markdown_content += f"![サンプル {idx+1}]({sub_img_url})\n\n"
-            
-    return markdown_content
+            body += f"![サンプル {idx+1}]({sub_img_url})\n\n"
+
+    # 商品詳細説明
+    body += "## 商品説明\n\n" + original_desc + "\n\n"
+
+    # 管理人の感想（デザイン用の review-box を本文内に配置）
+    if llm_review and llm_review.strip():
+        safe_review_html = llm_review.strip().replace('\n', '<br/>')
+        review_html = (
+            '<aside class="review-box">\n'
+            '  <div class="review-box-inner">\n'
+            '    <div class="review-badge">管理人の感想</div>\n'
+            '    <div class="review-body">' + safe_review_html + '</div>\n'
+            '    <div class="review-cta">\n'
+            '      <a href="' + product.get('url', '') + '" class="affiliate-button">今すぐ詳細を見る</a>\n'
+            '    </div>\n'
+            '  </div>\n'
+            '</aside>\n\n'
+        )
+        body += review_html
+
+    # 購入ボタン（再掲）
+    body += "{{< affiliate_button url=\"" + product.get('url', '') + "\" >}}\n\n"
+
+    # タグ一覧（再掲）
+    if genres_list:
+        body += "**タグ**: " + ", ".join(genres_list) + "\n\n"
+
+    # 前後記事表記はテーマ側で処理されるため、ここでは区切りのみ入れる
+    body += "---\n"
+
+    return front_matter + "\n" + body
 
 
 async def scrape_dlsite_new_products(target_url: str, today_date_str: str, headless_mode: bool = True) -> str | None:
