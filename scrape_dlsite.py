@@ -134,18 +134,6 @@ images = ["{main_image_url}"]
     # 本文構築
     body = f"![メイン画像]({main_image_url})\n\n"
 
-    # 商品情報 (サークル名/商品ID/URL)
-    body += f"**サークル**: {product.get('author', '不明')}  \n"
-    body += f"**商品ID**: {product.get('product_id', '')}  \n"
-    body += f"[DLsite ページへ]({product.get('url')})\n\n"
-
-    # タグ一覧
-    if genres_list:
-        body += "**タグ**: " + ", ".join(genres_list) + "\n\n"
-
-    # 購入ボタン（ショートコードを利用）
-    body += "{{< affiliate_button url=\"" + product.get('url', '') + "\" >}}\n\n"
-
     # サンプル画像
     if product.get('sub_images'):
         body += "## サンプル画像\n\n"
@@ -170,13 +158,6 @@ images = ["{main_image_url}"]
             '</aside>\n\n'
         )
         body += review_html
-
-    # 購入ボタン（再掲）
-    body += "{{< affiliate_button url=\"" + product.get('url', '') + "\" >}}\n\n"
-
-    # タグ一覧（再掲）
-    if genres_list:
-        body += "**タグ**: " + ", ".join(genres_list) + "\n\n"
 
     # 前後記事表記はテーマ側で処理されるため、ここでは区切りのみ入れる
     body += "---\n"
