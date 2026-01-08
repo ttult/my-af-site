@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://www.ultimateroom.net/sitemap.xml
